@@ -9,190 +9,181 @@
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         header { background: #000; padding: 20px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        nav button { background: none; border: none; color: #555; padding: 15px 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         .container { padding: 30px 5%; max-width: 900px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
         .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
-        .badge { background: var(--gold); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 4px; margin: 10px 0; display: inline-block; }
+        .card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
         .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 20px; border-radius: 10px; }
-        .video-container { width: 100%; margin-top: 15px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        video, iframe, .prova-media { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
-        .prova-media { aspect-ratio: auto; max-height: 500px; object-fit: contain; }
-        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 25px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 15px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
-        .btn-del { color: #ff4444; background: none; border: 1px solid #444; cursor: pointer; font-size: 11px; padding: 5px 10px; margin-top: 10px; border-radius: 4px; }
+        .media-box { width: 100%; margin-top: 15px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+        video, iframe { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
+        img.prova-render { width: 100%; height: auto; display: block; }
+        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
+        .btn-del { color: #ff4444; background: none; border: 1px solid #444; cursor: pointer; font-size: 10px; padding: 5px 10px; margin-top: 10px; border-radius: 4px; }
         #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:999; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="color: var(--gold); font-weight: bold; letter-spacing: 3px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer;">PAINEL</button>
+    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA SISTEMA</div>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; cursor: pointer; font-size: 12px;">ADM</button>
 </header>
 
 <nav>
-    <button onclick="switchTab('membros')" id="btn-membros" class="active">Membros</button>
-    <button onclick="switchTab('provas')" id="btn-provas">Arquivos de Prova</button>
+    <button onclick="tab('membros')" id="b-membros" class="active">Membros</button>
+    <button onclick="tab('provas')" id="b-provas">Provas</button>
 </nav>
 
 <div class="container">
-    <div id="tab-membros" class="tab-content active"><div id="listaMembros" class="grid"></div></div>
-    <div id="tab-provas" class="tab-content"><div id="listaProvas"></div></div>
+    <div id="t-membros" class="tab-content active"><div id="listM" class="grid"></div></div>
+    <div id="t-provas" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); margin-top:0;">Cadastrar Registro</h3>
-        <select id="tipo" onchange="toggleForm()">
-            <option value="membro">Membro</option>
-            <option value="prova">Prova (Link ou Arquivo)</option>
+        <h4 style="color: var(--gold); margin:0 0 10px 0;">Novo Registro</h4>
+        <select id="tipo" onchange="toggleF()">
+            <option value="m">Membro</option>
+            <option value="p">Prova (Vídeo/Foto)</option>
         </select>
         
-        <div id="camposMembro">
-            <input type="text" id="nome" placeholder="Nome">
-            <input type="text" id="idMem" placeholder="ID">
-            <input type="text" id="tel" placeholder="Telefone" maxlength="9">
+        <div id="fM">
+            <input type="text" id="n" placeholder="Nome">
+            <input type="text" id="id" placeholder="ID">
         </div>
 
-        <div id="camposProva" style="display:none;">
-            <input type="text" id="tituloP" placeholder="Título da Prova">
-            <input type="text" id="videoLink" placeholder="Link do Vídeo (YouTube/URL)">
+        <div id="fP" style="display:none;">
+            <input type="text" id="tit" placeholder="Título da Prova">
+            <input type="text" id="link" placeholder="Link do Vídeo (YouTube ou MP4)">
         </div>
 
-        <div style="margin: 10px 0;">
-            <label style="font-size: 11px; color: var(--gold);">Upload de Foto ou Vídeo:</label>
-            <input type="file" id="arquivo" accept="image/*,video/*">
+        <div style="margin:10px 0;">
+            <label style="font-size:11px; color:gray;">Upload de Arquivo (Opcional):</label>
+            <input type="file" id="fileUp" accept="image/*,video/*">
         </div>
 
-        <textarea id="obs" placeholder="Observações..."></textarea>
-        <button class="btn-save" onclick="salvar()">Sincronizar</button>
+        <textarea id="obs" placeholder="Observações"></textarea>
+        <button class="btn-save" onclick="save()">Sincronizar</button>
     </div>
 </div>
 
 <div id="loginOverlay">
-    <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius:10px;">
-        <h3 style="color:var(--gold)">Chave de Acesso</h3>
-        <input type="password" id="pass" placeholder="Senha">
-        <button class="btn-save" onclick="logar()">Acessar</button>
+    <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius:8px;">
+        <input type="password" id="pw" placeholder="Senha">
+        <button class="btn-save" onclick="login()">Entrar</button>
     </div>
 </div>
 
 <script>
-    const SENHA = "123";
-    let isAdmin = false;
+    const PASS = "123";
+    let adm = false;
 
-    function switchTab(t) {
-        document.querySelectorAll('.tab-content, nav button').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-'+t).classList.add('active');
-        document.getElementById('btn-'+t).classList.add('active');
+    function tab(t) {
+        document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
+        document.getElementById('t-'+t).classList.add('active');
+        document.getElementById('b-'+t).classList.add('active');
     }
 
-    function toggleForm() {
-        const t = document.getElementById('tipo').value;
-        document.getElementById('camposMembro').style.display = t === 'membro' ? 'block' : 'none';
-        document.getElementById('camposProva').style.display = t === 'prova' ? 'block' : 'none';
+    function toggleF() {
+        const isP = document.getElementById('tipo').value === 'p';
+        document.getElementById('fM').style.display = isP ? 'none' : 'block';
+        document.getElementById('fP').style.display = isP ? 'block' : 'none';
     }
 
-    function logar() {
-        if(document.getElementById('pass').value === SENHA) {
-            isAdmin = true;
+    function login() {
+        if(document.getElementById('pw').value === PASS) {
+            adm = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else { alert("Senha incorreta"); }
+        } else alert("Erro");
     }
 
-    const toBase64 = f => new Promise((res, rej) => {
+    const toB64 = f => new Promise((res) => {
         const r = new FileReader();
-        r.readAsDataURL(f);
         r.onload = () => res(r.result);
-        r.onerror = e => rej(e);
+        r.readAsDataURL(f);
     });
 
-    async function salvar() {
-        const db = JSON.parse(localStorage.getItem('cupula_data') || '{"membros":[],"provas":[]}');
+    async function save() {
+        let db = JSON.parse(localStorage.getItem('cupula_db') || '{"m":[],"p":[]}');
         const tipo = document.getElementById('tipo').value;
-        const file = document.getElementById('arquivo').files[0];
+        const file = document.getElementById('fileUp').files[0];
         let midia = "";
+        let mType = "";
 
-        if(file) midia = await toBase64(file);
+        if(file) {
+            midia = await toB64(file);
+            mType = file.type.startsWith('image') ? 'img' : 'vid';
+        }
 
-        if(tipo === 'membro') {
-            db.membros.push({
-                uid: Date.now(),
-                nome: document.getElementById('nome').value,
-                id: document.getElementById('idMem').value,
-                tel: document.getElementById('tel').value,
-                foto: midia,
-                obs: document.getElementById('obs').value
-            });
+        if(tipo === 'm') {
+            db.m.push({ uid: Date.now(), n: document.getElementById('n').value, id: document.getElementById('id').value, foto: midia });
         } else {
-            const link = document.getElementById('videoLink').value;
-            db.provas.push({
-                uid: Date.now(),
-                titulo: document.getElementById('tituloP').value,
-                link: link || midia,
-                isUpload: !link && midia,
-                tipoMedia: file ? file.type.split('/')[0] : 'video',
-                obs: document.getElementById('obs').value
+            const url = document.getElementById('link').value;
+            db.p.push({ 
+                uid: Date.now(), 
+                t: document.getElementById('tit').value, 
+                src: url || midia, 
+                tp: url ? 'url' : mType,
+                obs: document.getElementById('obs').value 
             });
         }
 
-        localStorage.setItem('cupula_data', JSON.stringify(db));
-        render();
-        alert("Salvo com sucesso!");
+        try {
+            localStorage.setItem('cupula_db', JSON.stringify(db));
+            render();
+            alert("Sucesso!");
+        } catch(e) { alert("Arquivo muito grande!"); }
     }
 
-    function apagar(cat, id) {
-        if(!confirm("Remover este registro?")) return;
-        let db = JSON.parse(localStorage.getItem('cupula_data'));
+    function del(cat, id) {
+        if(!confirm("Excluir?")) return;
+        let db = JSON.parse(localStorage.getItem('cupula_db'));
         db[cat] = db[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_data', JSON.stringify(db));
+        localStorage.setItem('cupula_db', JSON.stringify(db));
         render();
     }
 
     function render() {
-        const db = JSON.parse(localStorage.getItem('cupula_data') || '{"membros":[],"provas":[]}');
+        const db = JSON.parse(localStorage.getItem('cupula_db') || '{"m":[],"p":[]}');
+        const listM = document.getElementById('listM');
+        const listP = document.getElementById('listP');
         
-        const mList = document.getElementById('listaMembros');
-        mList.innerHTML = '';
-        db.membros.forEach(m => {
-            mList.innerHTML += `<div class="card">
-                <span class="badge">CÚPULA</span><br>
-                <img src="${m.foto || 'https://via.placeholder.com/90'}">
-                <h4>${m.nome}</h4>
-                <div style="font-size:12px">ID: ${m.id}</div>
-                ${isAdmin ? `<button class="btn-del" onclick="apagar('membros',${m.uid})">Remover</button>` : ''}
+        listM.innerHTML = '';
+        db.m.forEach(m => {
+            listM.innerHTML += `<div class="card">
+                <img src="${m.foto || 'https://via.placeholder.com/80'}">
+                <h5>${m.n}</h5><p>ID: ${m.id}</p>
+                ${adm ? `<button class="btn-del" onclick="del('m',${m.uid})">Apagar</button>` : ''}
             </div>`;
         });
 
-        const pList = document.getElementById('listaProvas');
-        pList.innerHTML = '';
-        db.provas.forEach(p => {
-            let mediaTag = "";
-            const ytMatch = p.link.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+        listP.innerHTML = '';
+        db.p.forEach(p => {
+            let html = "";
+            const yt = p.src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/);
             
-            if(ytMatch) {
-                mediaTag = `<iframe src="https://www.youtube.com/embed/${ytMatch[2]}" allowfullscreen></iframe>`;
-            } else if (p.tipoMedia === 'image' || p.link.startsWith('data:image')) {
-                mediaTag = `<img src="${p.link}" class="prova-media">`;
+            if(yt) {
+                html = `<iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;
+            } else if (p.tp === 'img' || p.src.startsWith('data:image')) {
+                html = `<img src="${p.src}" class="prova-render">`;
             } else {
-                mediaTag = `<video controls><source src="${p.link}">Erro.</video>`;
+                html = `<video controls><source src="${p.src}">Erro</video>`;
             }
 
-            pList.innerHTML += `<div class="prova-item">
-                <h3 style="color:var(--gold); margin:0;">${p.titulo}</h3>
-                <p style="font-size:14px; color:#888;">${p.obs}</p>
-                <div class="video-container">${mediaTag}</div>
-                ${isAdmin ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">Remover Prova</button>` : ''}
+            listP.innerHTML += `<div class="prova-item">
+                <h3 style="color:var(--gold);margin:0;">${p.t}</h3>
+                <p style="font-size:13px;color:#888;">${p.obs}</p>
+                <div class="media-box">${html}</div>
+                ${adm ? `<button class="btn-del" onclick="del('p',${p.uid})">Remover Prova</button>` : ''}
             </div>`;
         });
     }
-
     render();
 </script>
 </body>
