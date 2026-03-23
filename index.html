@@ -6,91 +6,94 @@
     <title>Cúpula - Sistema VIP</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
-        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
         nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         
-        .container { padding: 20px 5%; max-width: 1000px; margin: auto; }
+        .container { padding: 20px 5%; max-width: 1100px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* AJUSTE: 4 POR LINHA */
+        /* GRADE FIXA DE 4 COLUNAS */
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); /* Força 4 colunas */
-            gap: 20px; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px; 
         }
 
-        /* Responsivo: Se a tela for pequena (celular), ele ajusta para 2 por linha */
-        @media (max-width: 768px) {
-            .grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        /* AJUSTE PARA CELULAR */
+        @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
-        .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; }
-        .nome-membro { color: var(--gold); font-weight: bold; font-size: 14px; margin-bottom: 5px; text-transform: uppercase; }
-        .info-link { color: #888; text-decoration: none; font-size: 12px; display: block; margin: 2px 0; }
-        .info-link:hover { color: var(--gold); }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; position: relative; }
+        .card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; background: #222; }
+        .nome-membro { color: var(--gold); font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .info-txt { color: #888; font-size: 11px; margin: 2px 0; text-decoration: none; display: block; }
+        .info-txt:hover { color: var(--gold); }
 
-        /* Provas */
+        /* PROVAS */
         .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 15px; border-radius: 8px; }
-        .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 5px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
-        img.render, video, iframe { width: 100%; display: block; border: none; }
+        .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 5px; overflow: hidden; cursor: pointer; border: 1px solid #333; position: relative; }
+        .render-img, video, iframe { width: 100%; display: block; border: none; }
         video, iframe { aspect-ratio: 16/9; }
+        .render-img { height: auto; max-height: 400px; object-fit: contain; }
 
-        /* Admin & Modais */
+        /* ADMIN */
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
         .btn-del { color: #ff4444; background: rgba(255,0,0,0.05); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 10px; border-radius: 4px; width: 100%; }
         
+        /* OVERLAYS */
         #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:1000; }
-        #zoomBox { max-width: 90%; max-height: 90%; border: 1px solid var(--gold); }
+        #zoomBox { max-width: 90%; max-height: 90%; display: flex; justify-content: center; }
+        #zoomBox img, #zoomBox video { max-width: 100%; max-height: 85vh; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer;">PAINEL</button>
+    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px; font-size: 18px;">CÚPULA</div>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer; font-weight: bold;">ADM</button>
 </header>
 
 <nav>
-    <button onclick="switchTab('m')" id="btn-m" class="active">Membros</button>
-    <button onclick="switchTab('p')" id="btn-p">Provas</button>
+    <button onclick="tab('m')" id="nav-m" class="active">Membros</button>
+    <button onclick="tab('p')" id="nav-p">Arquivos de Prova</button>
 </nav>
 
 <div class="container">
     <div id="tab-m" class="tab-content active"><div id="listM" class="grid"></div></div>
+    
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); text-align: center;">CADASTRO</h3>
-        <select id="escolhaTipo" onchange="alternarCampos()">
-            <option value="MEMBRO">NOVO MEMBRO</option>
-            <option value="PROVA">NOVA PROVA</option>
+        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">NOVO REGISTRO</h3>
+        <select id="tipoItem" onchange="mudarForm()">
+            <option value="M">CADASTRAR MEMBRO</option>
+            <option value="P">CADASTRAR PROVA</option>
         </select>
         
-        <div id="areaMembro">
-            <input type="text" id="membroNome" placeholder="Nome">
-            <input type="text" id="membroID" placeholder="ID">
-            <input type="text" id="membroNum" placeholder="Telemóvel">
+        <div id="formM">
+            <input type="text" id="mNome" placeholder="Nome Completo">
+            <input type="text" id="mID" placeholder="ID Interno">
+            <input type="text" id="mTel" placeholder="Telemóvel (Ex: 912345678)">
         </div>
 
-        <div id="areaProva" style="display:none;">
-            <input type="text" id="provaTitulo" placeholder="Título">
-            <input type="text" id="provaLink" placeholder="Link YouTube">
+        <div id="formP" style="display:none;">
+            <input type="text" id="pTit" placeholder="Título da Prova">
+            <input type="text" id="pLink" placeholder="Link do YouTube (Opcional)">
         </div>
 
         <div style="margin: 10px 0;">
-            <label style="font-size: 11px; color: var(--gold);">ARQUIVO:</label>
-            <input type="file" id="arquivoPrincipal" accept="image/*,video/*">
+            <label style="font-size: 11px; color: var(--gold); display: block; margin-bottom: 4px;">UPLOAD (FOTO OU VÍDEO):</label>
+            <input type="file" id="fUpload" accept="image/*,video/*">
         </div>
 
-        <textarea id="observacaoGeral" placeholder="Observações"></textarea>
-        <button class="btn-save" onclick="executarEnvio()">SALVAR</button>
+        <textarea id="obs" placeholder="Observações Gerais"></textarea>
+        <button class="btn-save" onclick="salvar()">SALVAR AGORA</button>
     </div>
 </div>
 
@@ -99,126 +102,129 @@
 <div id="loginOverlay">
     <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius: 8px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senhaAdm" placeholder="Senha ADM">
-        <button class="btn-save" onclick="validarAcesso()">ENTRAR</button>
+        <input type="password" id="passInput" placeholder="Senha ADM">
+        <button class="btn-save" onclick="autenticar()">ENTRAR</button>
     </div>
 </div>
 
 <script>
-    const CHAVE = "cpx2026";
-    let isAdm = false;
+    const KEY = "cpx2026";
+    let logado = false;
 
-    function switchTab(t) {
+    function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
         document.getElementById('tab-'+t).classList.add('active');
-        document.getElementById('btn-'+t).classList.add('active');
+        document.getElementById('nav-'+t).classList.add('active');
     }
 
-    function alternarCampos() {
-        const tipo = document.getElementById('escolhaTipo').value;
-        document.getElementById('areaMembro').style.display = tipo === 'MEMBRO' ? 'block' : 'none';
-        document.getElementById('areaProva').style.display = tipo === 'PROVA' ? 'block' : 'none';
+    function mudarForm() {
+        const tipo = document.getElementById('tipoItem').value;
+        document.getElementById('formM').style.display = tipo === 'M' ? 'block' : 'none';
+        document.getElementById('formP').style.display = tipo === 'P' ? 'block' : 'none';
     }
 
-    function validarAcesso() {
-        if(document.getElementById('senhaAdm').value === CHAVE) {
-            isAdm = true;
+    function autenticar() {
+        if(document.getElementById('passInput').value === KEY) {
+            logado = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            renderizar();
-        } else alert("Incorreto!");
+            render();
+        } else {
+            alert("Senha Incorreta!");
+        }
     }
 
-    function abrirZoom(src, tipo) {
+    function zoom(src, tipo) {
         const box = document.getElementById('zoomBox');
         box.innerHTML = '';
-        if(tipo === 'foto') box.innerHTML = `<img src="${src}" style="width:100%; max-height:85vh; object-fit:contain;">`;
-        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay style="width:100%; max-height:85vh;"></video>`;
-        else {
+        if(tipo === 'foto') box.innerHTML = `<img src="${src}">`;
+        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay></video>`;
+        else if(tipo === 'yt') {
             const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:85vw; height:48vw;" allowfullscreen></iframe>`;
+            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:80vw; height:45vw;" allowfullscreen></iframe>`;
         }
         document.getElementById('zoomOverlay').style.display = 'flex';
     }
 
-    const lerArquivo = f => new Promise(r => {
-        const reader = new FileReader();
-        reader.onload = () => r(reader.result);
-        reader.readAsDataURL(f);
-    });
+    async function salvar() {
+        let db = JSON.parse(localStorage.getItem('cupula_v10') || '{"m":[],"p":[]}');
+        const tipo = document.getElementById('tipoItem').value;
+        const file = document.getElementById('fUpload').files[0];
+        let midia = "", mExt = "";
 
-    async function executarEnvio() {
-        let dados = JSON.parse(localStorage.getItem('cupula_final_v6') || '{"membros":[],"provas":[]}');
-        const tipoEscolhido = document.getElementById('escolhaTipo').value;
-        const arquivo = document.getElementById('arquivoPrincipal').files[0];
-        let base64 = "", extensao = "";
-
-        if(arquivo) {
-            base64 = await lerArquivo(arquivo);
-            extensao = arquivo.type.startsWith('image') ? 'foto' : 'video';
+        if(file) {
+            midia = await new Promise(r => { 
+                const rd = new FileReader(); 
+                rd.onload = () => r(rd.result); 
+                rd.readAsDataURL(file); 
+            });
+            mExt = file.type.startsWith('image') ? 'foto' : 'video';
         }
 
-        if(tipoEscolhido === 'MEMBRO') {
-            dados.membros.push({ 
-                uid: Date.now(), 
-                nome: document.getElementById('membroNome').value, 
-                id: document.getElementById('membroID').value, 
-                num: document.getElementById('membroNum').value,
-                foto: base64 
-            });
+        if(tipo === 'M') {
+            const n = document.getElementById('mNome').value;
+            if(!n) return alert("Nome obrigatório!");
+            db.m.push({ idt: Date.now(), n, id: document.getElementById('mID').value, tel: document.getElementById('mTel').value, f: midia });
         } else {
-            const yt = document.getElementById('provaLink').value;
-            dados.provas.push({ 
-                uid: Date.now(), 
-                titulo: document.getElementById('provaTitulo').value, 
-                midia: yt || base64, 
-                tipo: yt ? 'youtube' : extensao,
-                obs: document.getElementById('observacaoGeral').value 
-            });
+            const t = document.getElementById('pTit').value;
+            const l = document.getElementById('pLink').value;
+            if(!t) return alert("Título obrigatório!");
+            db.p.push({ idt: Date.now(), t, m: l || midia, tipo: l ? 'yt' : mExt, o: document.getElementById('obs').value });
         }
 
-        localStorage.setItem('cupula_final_v6', JSON.stringify(dados));
-        alert("Salvo!");
+        localStorage.setItem('cupula_v10', JSON.stringify(db));
+        alert("Sincronizado com sucesso!");
         document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
-        renderizar();
+        render();
     }
 
     function apagar(cat, id) {
-        if(!confirm("Apagar?")) return;
-        let dados = JSON.parse(localStorage.getItem('cupula_final_v6'));
-        dados[cat] = dados[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_final_v6', JSON.stringify(dados));
-        renderizar();
+        if(!confirm("Remover?")) return;
+        let db = JSON.parse(localStorage.getItem('cupula_v10'));
+        db[cat] = db[cat].filter(x => x.idt !== id);
+        localStorage.setItem('cupula_v10', JSON.stringify(db));
+        render();
     }
 
-    function renderizar() {
-        const dados = JSON.parse(localStorage.getItem('cupula_final_v6') || '{"membros":[],"provas":[]}');
-        const listaM = document.getElementById('listM');
-        const listaP = document.getElementById('listP');
+    function render() {
+        const db = JSON.parse(localStorage.getItem('cupula_v10') || '{"m":[],"p":[]}');
+        const listM = document.getElementById('listM');
+        const listP = document.getElementById('listP');
         
-        listaM.innerHTML = '';
-        dados.membros.forEach(m => {
-            listaM.innerHTML += `<div class="card">
-                <img src="${m.foto || 'https://via.placeholder.com/80'}" onclick="abrirZoom('${m.foto}','foto')">
-                <div class="nome-membro">${m.nome}</div>
-                <div class="info-link">ID: ${m.id || '---'}</div>
-                <a href="tel:${m.num}" class="info-link">TEL: ${m.num || '---'}</a>
-                ${isAdm ? `<button class="btn-del" onclick="apagar('membros',${m.uid})">REMOVER</button>` : ''}
+        listM.innerHTML = '';
+        db.m.forEach(x => {
+            listM.innerHTML += `
+            <div class="card">
+                <img src="${x.f || 'https://via.placeholder.com/80'}" onclick="zoom('${x.f}','foto')">
+                <div class="nome-membro">${x.n}</div>
+                <div class="info-txt">ID: ${x.id || '---'}</div>
+                <a href="tel:${x.tel}" class="info-txt">TEL: ${x.tel || '---'}</a>
+                ${logado ? `<button class="btn-del" onclick="apagar('m',${x.idt})">REMOVER</button>` : ''}
             </div>`;
         });
 
-        listaP.innerHTML = '';
-        dados.provas.forEach(p => {
-            let htmlMidia = p.tipo === 'youtube' ? `<iframe src="https://www.youtube.com/embed/${p.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1]}"></iframe>` : (p.tipo === 'foto' ? `<img src="${p.midia}" class="render">` : `<video src="${p.midia}"></video>`);
-            listaP.innerHTML += `<div class="prova-item">
-                <div style="color:var(--gold); font-weight:bold;">${p.titulo}</div>
-                <div style="font-size:11px; color:#888; margin-bottom:10px;">${p.obs}</div>
-                <div class="media-box" onclick="abrirZoom('${p.midia}','${p.tipo}')">${htmlMidia}</div>
-                ${isAdm ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">EXCLUIR</button>` : ''}
+        listP.innerHTML = '';
+        db.p.forEach(x => {
+            let itemMidia = "";
+            if(x.tipo === 'yt') {
+                const id = x.m.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
+                itemMidia = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
+            } else if(x.tipo === 'foto') {
+                itemMidia = `<img src="${x.m}" class="render-img">`;
+            } else {
+                itemMidia = `<video src="${x.m}"></video>`;
+            }
+
+            listP.innerHTML += `
+            <div class="prova-item">
+                <div style="color:var(--gold); font-weight:bold; font-size:16px;">${x.t}</div>
+                <div style="font-size:11px; color:#666; margin:5px 0;">${x.o}</div>
+                <div class="media-box" onclick="zoom('${x.m}','${x.tipo}')">${itemMidia}</div>
+                ${logado ? `<button class="btn-del" onclick="apagar('p',${x.idt})">EXCLUIR PROVA</button>` : ''}
             </div>`;
         });
     }
-    renderizar();
+    render();
 </script>
 </body>
 </html>
