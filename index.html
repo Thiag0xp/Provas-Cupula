@@ -9,19 +9,29 @@
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
+        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         
-        .container { padding: 20px 5%; max-width: 800px; margin: auto; }
+        .container { padding: 20px 5%; max-width: 1000px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Grid Membros */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px; }
+        /* AJUSTE: 4 POR LINHA */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); /* Força 4 colunas */
+            gap: 20px; 
+        }
+
+        /* Responsivo: Se a tela for pequena (celular), ele ajusta para 2 por linha */
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; }
-        .nome-membro { color: var(--gold); font-weight: bold; font-size: 15px; margin-bottom: 8px; text-transform: uppercase; }
-        .info-link { color: #888; text-decoration: none; font-size: 12px; display: block; margin: 3px 0; transition: 0.2s; }
+        .card img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; }
+        .nome-membro { color: var(--gold); font-weight: bold; font-size: 14px; margin-bottom: 5px; text-transform: uppercase; }
+        .info-link { color: #888; text-decoration: none; font-size: 12px; display: block; margin: 2px 0; }
         .info-link:hover { color: var(--gold); }
 
         /* Provas */
@@ -29,15 +39,13 @@
         .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 5px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
         img.render, video, iframe { width: 100%; display: block; border: none; }
         video, iframe { aspect-ratio: 16/9; }
-        img.render { height: auto; max-height: 400px; object-fit: contain; }
 
-        /* Admin Panel */
+        /* Admin & Modais */
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
         input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
-        .btn-del { color: #ff4444; background: rgba(255,0,0,0.05); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
-
-        /* Modais */
+        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
+        .btn-del { color: #ff4444; background: rgba(255,0,0,0.05); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 10px; border-radius: 4px; width: 100%; }
+        
         #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:1000; }
         #zoomBox { max-width: 90%; max-height: 90%; border: 1px solid var(--gold); }
     </style>
@@ -46,7 +54,7 @@
 
 <header>
     <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 6px 15px; cursor: pointer; border-radius: 4px;">PAINEL</button>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer;">PAINEL</button>
 </header>
 
 <nav>
@@ -59,46 +67,45 @@
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); margin:0 0 15px 0; font-size: 16px; text-align: center;">GERENCIAMENTO INTERNO</h3>
+        <h3 style="color: var(--gold); text-align: center;">CADASTRO</h3>
         <select id="escolhaTipo" onchange="alternarCampos()">
             <option value="MEMBRO">NOVO MEMBRO</option>
             <option value="PROVA">NOVA PROVA</option>
         </select>
         
         <div id="areaMembro">
-            <input type="text" id="membroNome" placeholder="Nome do Agente">
-            <input type="text" id="membroID" placeholder="ID (Identificação)">
-            <input type="text" id="membroNum" placeholder="Número (Ex: 912345678)">
+            <input type="text" id="membroNome" placeholder="Nome">
+            <input type="text" id="membroID" placeholder="ID">
+            <input type="text" id="membroNum" placeholder="Telemóvel">
         </div>
 
         <div id="areaProva" style="display:none;">
-            <input type="text" id="provaTitulo" placeholder="Título da Ocorrência/Prova">
-            <input type="text" id="provaLink" placeholder="Link YouTube (opcional)">
+            <input type="text" id="provaTitulo" placeholder="Título">
+            <input type="text" id="provaLink" placeholder="Link YouTube">
         </div>
 
-        <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: var(--gold);">ARQUIVO (FOTO/VÍDEO):</label>
+        <div style="margin: 10px 0;">
+            <label style="font-size: 11px; color: var(--gold);">ARQUIVO:</label>
             <input type="file" id="arquivoPrincipal" accept="image/*,video/*">
         </div>
 
-        <textarea id="observacaoGeral" placeholder="Observações..."></textarea>
-        <button class="btn-save" onclick="executarEnvio()">SINCRONIZAR DADOS</button>
+        <textarea id="observacaoGeral" placeholder="Observações"></textarea>
+        <button class="btn-save" onclick="executarEnvio()">SALVAR</button>
     </div>
 </div>
 
 <div id="zoomOverlay" onclick="this.style.display='none'"><div id="zoomBox"></div></div>
 
 <div id="loginOverlay">
-    <div style="background:#111; padding:35px; border:1px solid var(--gold); text-align:center; border-radius: 8px; width: 280px;">
+    <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius: 8px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senhaAdm" placeholder="Digite a Senha">
+        <input type="password" id="senhaAdm" placeholder="Senha ADM">
         <button class="btn-save" onclick="validarAcesso()">ENTRAR</button>
-        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color: #444; font-size: 10px; margin-top: 15px; cursor: pointer;">FECHAR</p>
     </div>
 </div>
 
 <script>
-    const CHAVE = "cpx2026"; // Senha atualizada conforme solicitado
+    const CHAVE = "cpx2026";
     let isAdm = false;
 
     function switchTab(t) {
@@ -119,10 +126,7 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             renderizar();
-        } else {
-            alert("Senha incorreta!");
-            document.getElementById('senhaAdm').value = "";
-        }
+        } else alert("Incorreto!");
     }
 
     function abrirZoom(src, tipo) {
@@ -144,7 +148,7 @@
     });
 
     async function executarEnvio() {
-        let dados = JSON.parse(localStorage.getItem('cupula_cpx_v1') || '{"membros":[],"provas":[]}');
+        let dados = JSON.parse(localStorage.getItem('cupula_final_v6') || '{"membros":[],"provas":[]}');
         const tipoEscolhido = document.getElementById('escolhaTipo').value;
         const arquivo = document.getElementById('arquivoPrincipal').files[0];
         let base64 = "", extensao = "";
@@ -155,44 +159,40 @@
         }
 
         if(tipoEscolhido === 'MEMBRO') {
-            const nome = document.getElementById('membroNome').value;
-            if(!nome) return alert("Preencha o nome!");
             dados.membros.push({ 
                 uid: Date.now(), 
-                nome, 
+                nome: document.getElementById('membroNome').value, 
                 id: document.getElementById('membroID').value, 
                 num: document.getElementById('membroNum').value,
                 foto: base64 
             });
         } else {
-            const titulo = document.getElementById('provaTitulo').value;
-            const linkYt = document.getElementById('provaLink').value;
-            if(!titulo) return alert("Preencha o título!");
+            const yt = document.getElementById('provaLink').value;
             dados.provas.push({ 
                 uid: Date.now(), 
-                titulo, 
-                midia: linkYt || base64, 
-                tipo: linkYt ? 'youtube' : extensao,
+                titulo: document.getElementById('provaTitulo').value, 
+                midia: yt || base64, 
+                tipo: yt ? 'youtube' : extensao,
                 obs: document.getElementById('observacaoGeral').value 
             });
         }
 
-        localStorage.setItem('cupula_cpx_v1', JSON.stringify(dados));
-        alert("Sincronizado!");
+        localStorage.setItem('cupula_final_v6', JSON.stringify(dados));
+        alert("Salvo!");
         document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
         renderizar();
     }
 
     function apagar(cat, id) {
-        if(!confirm("Remover permanentemente?")) return;
-        let dados = JSON.parse(localStorage.getItem('cupula_cpx_v1'));
+        if(!confirm("Apagar?")) return;
+        let dados = JSON.parse(localStorage.getItem('cupula_final_v6'));
         dados[cat] = dados[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_cpx_v1', JSON.stringify(dados));
+        localStorage.setItem('cupula_final_v6', JSON.stringify(dados));
         renderizar();
     }
 
     function renderizar() {
-        const dados = JSON.parse(localStorage.getItem('cupula_cpx_v1') || '{"membros":[],"provas":[]}');
+        const dados = JSON.parse(localStorage.getItem('cupula_final_v6') || '{"membros":[],"provas":[]}');
         const listaM = document.getElementById('listM');
         const listaP = document.getElementById('listP');
         
@@ -209,21 +209,12 @@
 
         listaP.innerHTML = '';
         dados.provas.forEach(p => {
-            let htmlMidia = "";
-            if(p.tipo === 'youtube') {
-                const id = p.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-                htmlMidia = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
-            } else if(p.tipo === 'foto') {
-                htmlMidia = `<img src="${p.midia}" class="render">`;
-            } else {
-                htmlMidia = `<video><source src="${p.midia}"></video>`;
-            }
-
+            let htmlMidia = p.tipo === 'youtube' ? `<iframe src="https://www.youtube.com/embed/${p.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1]}"></iframe>` : (p.tipo === 'foto' ? `<img src="${p.midia}" class="render">` : `<video src="${p.midia}"></video>`);
             listaP.innerHTML += `<div class="prova-item">
-                <div style="color:var(--gold); font-weight:bold; font-size: 16px;">${p.titulo}</div>
-                <div style="font-size:12px; color:#888; margin: 5px 0 10px 0;">${p.obs}</div>
+                <div style="color:var(--gold); font-weight:bold;">${p.titulo}</div>
+                <div style="font-size:11px; color:#888; margin-bottom:10px;">${p.obs}</div>
                 <div class="media-box" onclick="abrirZoom('${p.midia}','${p.tipo}')">${htmlMidia}</div>
-                ${isAdm ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">APAGAR PROVA</button>` : ''}
+                ${isAdm ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">EXCLUIR</button>` : ''}
             </div>`;
         });
     }
