@@ -3,58 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Gestão de Cargos</title>
+    <title>Cúpula - Sistema VIP</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
-        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 50px; }
         
         header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index: 100; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         
         .container { padding: 20px 5%; max-width: 1200px; margin: auto; }
-        .tab-content { display: none; }
+        .tab-content { display: none; min-height: 200px; }
         .tab-content.active { display: block; }
 
-        /* GRADE DE 4 POR LINHA */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; }
-        @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-
-        .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 12px; background: #222; }
+        /* GRADE DE 4 POR LINHA FIXA */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
         
-        /* ESTILO DAS TAGS */
-        .tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        /* NO CELULAR: 2 POR LINHA PARA NÃO FICAR MINÚSCULO */
+        @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+        .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); text-align: center; height: fit-content; }
+        .card img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; background: #222; }
+        
+        /* TAGS DE CARGO */
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
         .tag-comum { background: #333; color: #ccc; }
         .tag-importante { background: #441111; color: #ff6666; border: 1px solid #772222; }
         .tag-cupula { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold); }
 
-        .nome-membro { color: #fff; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
-        .info-txt { color: #888; font-size: 12px; margin: 3px 0; text-decoration: none; display: block; }
+        .nome-membro { color: #fff; font-weight: bold; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; }
+        .info-txt { color: #888; font-size: 11px; margin: 2px 0; text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; }
 
         /* PROVAS */
-        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 30px; padding: 20px; border-radius: 12px; }
-        .media-box { width: 100%; margin-top: 15px; background: #000; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
+        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 15px; border-radius: 10px; }
+        .media-box { width: 100%; margin-top: 12px; background: #000; border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
         .render-img, video, iframe { width: 100%; display: block; border: none; }
         video, iframe { aspect-ratio: 16/9; }
 
         /* ADMIN */
-        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 25px; margin-top: 20px; display: none; border-radius: 10px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 6px; margin-top: 10px; }
-        .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 11px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
+        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
+        .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 12px; border-radius: 4px; width: 100%; }
         
-        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.97); display:none; justify-content:center; align-items:center; z-index:1000; }
-        #zoomBox { max-width: 90%; max-height: 90%; }
-        #zoomBox img, #zoomBox video { max-width: 100%; max-height: 85vh; border: 1px solid var(--gold); border-radius: 4px; }
+        /* ZOOM E LOGIN */
+        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); display:none; justify-content:center; align-items:center; z-index:1000; }
+        #zoomBox { max-width: 95%; max-height: 90%; text-align: center; }
+        #zoomBox img, #zoomBox video { max-width: 100%; max-height: 80vh; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px; font-size: 20px;">CÚPULA</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 6px 18px; cursor: pointer; font-weight: bold; border-radius: 4px;">ADM</button>
+    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px; font-size: 18px;">CÚPULA</div>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 12px;">ADM</button>
 </header>
 
 <nav>
@@ -67,17 +70,16 @@
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">SISTEMA DE CADASTRO</h3>
+        <h3 style="color: var(--gold); text-align: center; margin-top: 0; font-size: 16px;">NOVO CADASTRO</h3>
         <select id="tipo" onchange="mudarForm()">
-            <option value="M">CADASTRAR MEMBRO</option>
-            <option value="P">CADASTRAR PROVA</option>
+            <option value="M">Membro (Agente)</option>
+            <option value="P">Prova (Arquivo/Vídeo)</option>
         </select>
         
         <div id="formM">
-            <input type="text" id="nome" placeholder="Nome do Agente">
-            <input type="text" id="idU" placeholder="ID Interno">
+            <input type="text" id="nome" placeholder="Nome">
+            <input type="text" id="idU" placeholder="ID">
             <input type="text" id="tel" placeholder="Telefone">
-            <label style="font-size: 11px; color: var(--gold); margin-top: 10px; display: block;">CARGO / HIERARQUIA:</label>
             <select id="cargo">
                 <option value="comum">Membro Comum</option>
                 <option value="importante">Cargo Importante</option>
@@ -91,42 +93,46 @@
         </div>
 
         <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">SUBIR ARQUIVO (ATÉ 100MB):</label>
+            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">ARQUIVO (MÁX 100MB):</label>
             <input type="file" id="up" accept="image/*,video/*">
         </div>
 
-        <textarea id="obs" placeholder="Detalhes e Observações"></textarea>
-        <button class="btn-save" id="btnSalvar" onclick="salvar()">SINCRONIZAR NOVO DADO</button>
+        <textarea id="obs" placeholder="Observações"></textarea>
+        <button class="btn-save" id="btnSalvar" onclick="salvar()">SALVAR AGORA</button>
     </div>
 </div>
 
 <div id="zoomOverlay" onclick="this.style.display='none'"><div id="zoomBox"></div></div>
 
 <div id="loginOverlay">
-    <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 280px;">
+    <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 260px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senha" placeholder="Senha Autorizada">
+        <input type="password" id="senha" placeholder="Senha ADM">
         <button class="btn-save" onclick="logar()">ENTRAR</button>
+        <div onclick="document.getElementById('loginOverlay').style.display='none'" style="color:#555; font-size:11px; margin-top:15px; cursor:pointer;">FECHAR</div>
     </div>
 </div>
 
 <script>
     const KEY = "cpx2026";
     let adm = false;
-    let dbIDB;
+    let db;
 
-    // BANCO DE DADOS (Zerei mudando o nome para CupulaFinalV2)
-    const request = indexedDB.open("CupulaFinalV2", 1);
+    // BANCO DE DADOS (Nome fixo para manter consistência)
+    const request = indexedDB.open("CupulaEliteDB_V3", 1);
     request.onupgradeneeded = e => {
-        dbIDB = e.target.result;
-        dbIDB.createObjectStore("items", { keyPath: "id" });
+        e.target.result.createObjectStore("items", { keyPath: "id" });
     };
-    request.onsuccess = e => { dbIDB = e.target.result; render(); };
+    request.onsuccess = e => { 
+        db = e.target.result; 
+        render(); // Chama assim que abre
+    };
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
         document.getElementById('tab-'+t).classList.add('active');
         document.getElementById('nav-'+t).classList.add('active');
+        render(); // Garante que carrega ao trocar de aba
     }
 
     function mudarForm() {
@@ -141,7 +147,7 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else alert("Senha Incorreta!");
+        } else alert("Senha incorreta!");
     }
 
     function abrir(src, tipo) {
@@ -151,7 +157,7 @@
         else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay></video>`;
         else {
             const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:85vw; height:48vw;" allowfullscreen></iframe>`;
+            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:90vw; height:50vw;" allowfullscreen></iframe>`;
         }
         document.getElementById('zoomOverlay').style.display = 'flex';
     }
@@ -159,13 +165,11 @@
     async function salvar() {
         const btn = document.getElementById('btnSalvar');
         const file = document.getElementById('up').files[0];
-        const tipo = document.getElementById('tipo').value;
-        let midiaBase64 = "", mType = "";
+        let midia = "", mType = "";
 
         if(file) {
-            btn.disabled = true;
-            btn.innerText = "PROCESSANDO...";
-            midiaBase64 = await new Promise(r => { 
+            btn.disabled = true; btn.innerText = "SINCROIZANDO...";
+            midia = await new Promise(r => { 
                 const rd = new FileReader(); 
                 rd.onload = () => r(rd.result); 
                 rd.readAsDataURL(file); 
@@ -175,21 +179,20 @@
 
         const data = {
             id: Date.now(),
-            cat: tipo,
+            cat: document.getElementById('tipo').value,
             nome: document.getElementById('nome').value || document.getElementById('tit').value,
             idU: document.getElementById('idU').value,
             tel: document.getElementById('tel').value,
             cargo: document.getElementById('cargo').value,
-            midia: document.getElementById('yt').value || midiaBase64,
+            midia: document.getElementById('yt').value || midia,
             mType: document.getElementById('yt').value ? 'yt' : mType,
             obs: document.getElementById('obs').value
         };
 
-        const tx = dbIDB.transaction("items", "readwrite");
+        const tx = db.transaction("items", "readwrite");
         tx.objectStore("items").add(data);
         tx.oncomplete = () => {
-            btn.disabled = false;
-            btn.innerText = "SINCRONIZAR NOVO DADO";
+            btn.disabled = false; btn.innerText = "SALVAR AGORA";
             document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
             render();
         };
@@ -197,7 +200,7 @@
 
     function apagar(id) {
         if(!confirm("Remover?")) return;
-        const tx = dbIDB.transaction("items", "readwrite");
+        const tx = db.transaction("items", "readwrite");
         tx.objectStore("items").delete(id);
         tx.oncomplete = () => render();
     }
@@ -205,23 +208,23 @@
     function render() {
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
-        listM.innerHTML = ''; listP.innerHTML = '';
-        if(!dbIDB) return;
+        if(!db || !listM || !listP) return;
 
-        const tx = dbIDB.transaction("items", "readonly");
+        listM.innerHTML = ''; listP.innerHTML = '';
+
+        const tx = db.transaction("items", "readonly");
         tx.objectStore("items").openCursor().onsuccess = e => {
             const cursor = e.target.result;
             if(cursor) {
                 const x = cursor.value;
                 if(x.cat === 'M') {
-                    // DEFINE A CLASSE DA TAG PELO CARGO
-                    let tagClasse = x.cargo === 'cupula' ? 'tag-cupula' : (x.cargo === 'importante' ? 'tag-importante' : 'tag-comum');
-                    let tagTexto = x.cargo === 'cupula' ? 'Membro Cúpula' : (x.cargo === 'importante' ? 'Cargo Importante' : 'Membro Comum');
-
+                    let tagCls = x.cargo === 'cupula' ? 'tag-cupula' : (x.cargo === 'importante' ? 'tag-importante' : 'tag-comum');
+                    let tagTxt = x.cargo === 'cupula' ? 'Membro Cúpula' : (x.cargo === 'importante' ? 'Cargo Importante' : 'Membro Comum');
+                    
                     listM.innerHTML += `
                     <div class="card">
                         <img src="${x.midia || 'https://via.placeholder.com/100'}" onclick="abrir('${x.midia}','foto')">
-                        <div><span class="tag ${tagClasse}">${tagTexto}</span></div>
+                        <div><span class="tag ${tagCls}">${tagTxt}</span></div>
                         <div class="nome-membro">${x.nome}</div>
                         <div class="info-txt">ID: ${x.idU || '---'}</div>
                         <a href="tel:${x.tel}" class="info-txt">TEL: ${x.tel || '---'}</a>
@@ -231,8 +234,8 @@
                     let mHtml = x.mType === 'yt' ? `<iframe src="https://www.youtube.com/embed/${x.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1]}"></iframe>` : (x.mType === 'foto' ? `<img src="${x.midia}" class="render-img">` : `<video src="${x.midia}"></video>`);
                     listP.innerHTML += `
                     <div class="prova-item">
-                        <div style="color:var(--gold); font-weight:bold; font-size:18px;">${x.nome}</div>
-                        <div style="font-size:13px; color:#777; margin:10px 0;">${x.obs}</div>
+                        <div style="color:var(--gold); font-weight:bold; font-size:16px;">${x.nome}</div>
+                        <div style="font-size:12px; color:#777; margin:8px 0;">${x.obs}</div>
                         <div class="media-box" onclick="abrir('${x.midia}','${x.mType}')">${mHtml}</div>
                         ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">EXCLUIR</button>` : ''}
                     </div>`;
@@ -241,6 +244,9 @@
             }
         };
     }
+
+    // TENTA RENDERIZAR A CADA 1 SEGUNDO CASO O BANCO DEMORE NO CELULAR
+    setInterval(() => { if(!document.querySelector('.card') && !document.querySelector('.prova-item')) render(); }, 2000);
 </script>
 </body>
 </html>
