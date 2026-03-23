@@ -1,107 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Arquivo Interno</title>
-    <style>
-        :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
-        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        
-        header { 
-            background: #000; padding: 20px 5%; border-bottom: 2px solid var(--gold);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { 
-            background: none; border: none; color: #555; padding: 15px 30px; 
-            cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px;
-        }
-        nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
-
-        .container { padding: 30px 5%; max-width: 900px; margin: auto; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Membros Clean */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { 
-            background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); 
-            text-align: center; transition: 0.3s;
-        }
-        .card:hover { border-color: var(--gold); }
-        .card img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
-        .badge { background: var(--gold); color: #000; font-size: 9px; font-weight: 900; padding: 3px 10px; border-radius: 4px; margin: 10px 0; display: inline-block; }
-
-        /* Provas com Player Interno */
-        .prova-item { 
-            background: var(--card); border: 1px solid var(--border); 
-            margin-bottom: 25px; padding: 20px; border-radius: 10px;
-        }
-        .video-container { width: 100%; margin-top: 15px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        video, iframe { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
-
-        /* Admin */
-        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 25px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 15px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
-        .btn-del { color: #ff4444; background: none; border: 1px solid #444; cursor: pointer; font-size: 11px; padding: 5px 10px; margin-top: 10px; border-radius: 4px; }
-
-        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:999; }
-    </style>
-</head>
-<body>
-
-<header>
-    <div style="color: var(--gold); font-weight: bold; letter-spacing: 3px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer;">PAINEL</button>
-</header>
-
-<nav>
-    <button onclick="switchTab('membros')" id="btn-membros" class="active">Membros</button>
-    <button onclick="switchTab('provas')" id="btn-provas">Arquivos de Prova</button>
-</nav>
-
-<div class="container">
-    <div id="tab-membros" class="tab-content active"><div id="listaMembros" class="grid"></div></div>
-    <div id="tab-provas" class="tab-content"><div id="listaProvas"></div></div>
-
-    <div id="adminPanel">
-        <h3 style="color: var(--gold); margin-top:0;">Cadastrar Registro</h3>
-        <select id="tipo" onchange="toggle()">
-            <option value="membro">Novo Membro</option>
-            <option value="prova">Vídeo de Prova</option>
-        </select>
-        
-        <div id="formMembro">
-            <input type="text" id="nome" placeholder="Nome do Integrante">
-            <input type="text" id="idMem" placeholder="ID Único">
-            <input type="text" id="tel" placeholder="Telefone (0000-0000)" maxlength="9">
-            <input type="file" id="fotoFile" accept="image/*">
-        </div>
-
-        <div id="formProva" style="display:none;">
-            <input type="text" id="tituloP" placeholder="Título da Prova">
-            <input type="text" id="videoLink" placeholder="Link do Vídeo (YouTube ou MP4)">
-        </div>
-
-        <textarea id="obs" placeholder="Detalhes adicionais..."></textarea>
-        <button class="btn-save" onclick="salvar()">Sincronizar Dados</button>
-    </div>
-</div>
-
-<div id="loginOverlay">
-    <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius:10px;">
-        <h3 style="color:var(--gold)">Chave de Acesso</h3>
-        <input type="password" id="pass" placeholder="Senha">
-        <button class="btn-save" onclick="logar()">Acessar</button>
-        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color:gray; cursor:pointer; margin-top:15px; font-size:12px;">Cancelar</p>
-    </div>
-</div>
-
-<script>
-    const SENHA = "123";
+const SENHA = "123";
     let isAdmin = false;
 
     function switchTab(t) {
@@ -130,25 +27,55 @@
         } else { alert("Acesso Negado"); }
     }
 
+    // Função auxiliar para converter arquivos para Base64
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
     async function salvar() {
         const db = JSON.parse(localStorage.getItem('cupula_final') || '{"membros":[],"provas":[]}');
         const tipo = document.getElementById('tipo').value;
 
         if(tipo === 'membro') {
             const file = document.getElementById('fotoFile').files[0];
-            const foto = file ? await new Promise(r => {const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(file)}) : '';
-            db.membros.push({ uid: Date.now(), nome: document.getElementById('nome').value, id: document.getElementById('idMem').value, tel: document.getElementById('tel').value, foto, obs: document.getElementById('obs').value });
+            const foto = file ? await toBase64(file) : '';
+            db.membros.push({ 
+                uid: Date.now(), 
+                nome: document.getElementById('nome').value, 
+                id: document.getElementById('idMem').value, 
+                tel: document.getElementById('tel').value, 
+                foto, 
+                obs: document.getElementById('obs').value 
+            });
         } else {
-            db.provas.push({ uid: Date.now(), titulo: document.getElementById('tituloP').value, link: document.getElementById('videoLink').value, obs: document.getElementById('obs').value });
+            const file = document.getElementById('fotoFile').files[0]; // Reaproveitando o campo de arquivo para Provas
+            let mediaUrl = document.getElementById('videoLink').value;
+            let fileType = 'link';
+
+            if(file) {
+                mediaUrl = await toBase64(file);
+                fileType = file.type.includes('video') ? 'video' : 'image';
+            }
+
+            db.provas.push({ 
+                uid: Date.now(), 
+                titulo: document.getElementById('tituloP').value, 
+                link: mediaUrl, 
+                tipoMedia: fileType,
+                obs: document.getElementById('obs').value 
+            });
         }
 
         localStorage.setItem('cupula_final', JSON.stringify(db));
         render();
-        alert("Dados salvos no servidor local.");
+        alert("Dados sincronizados com sucesso.");
     }
 
     function apagar(cat, id) {
-        if(!confirm("Apagar registro?")) return;
+        if(!confirm("Apagar registro permanentemente?")) return;
         let db = JSON.parse(localStorage.getItem('cupula_final'));
         db[cat] = db[cat].filter(i => i.uid !== id);
         localStorage.setItem('cupula_final', JSON.stringify(db));
@@ -174,18 +101,24 @@
         const pList = document.getElementById('listaProvas');
         pList.innerHTML = '';
         db.provas.forEach(p => {
-            // Verifica se é YouTube
             const ytMatch = p.link.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             const ytId = (ytMatch && ytMatch[2].length === 11) ? ytMatch[2] : null;
+
+            let playerHtml = '';
+            
+            if (ytId) {
+                playerHtml = `<iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen></iframe>`;
+            } else if (p.tipoMedia === 'image' || p.link.startsWith('data:image')) {
+                playerHtml = `<img src="${p.link}" style="width:100%; display:block;">`;
+            } else {
+                playerHtml = `<video controls><source src="${p.link}" type="video/mp4">Browser incompatível.</video>`;
+            }
 
             pList.innerHTML += `<div class="prova-item">
                 <h3 style="color:var(--gold); margin:0;">${p.titulo}</h3>
                 <p style="font-size:14px; color:#888; margin:10px 0;">${p.obs}</p>
                 <div class="video-container">
-                    ${ytId ? 
-                        `<iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen></iframe>` : 
-                        `<video controls><source src="${p.link}" type="video/mp4">Seu navegador não suporta vídeos.</video>`
-                    }
+                    ${playerHtml}
                 </div>
                 ${isAdmin ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">Deletar Prova</button>` : ''}
             </div>`;
@@ -193,6 +126,3 @@
     }
 
     render();
-</script>
-</body>
-</html>
