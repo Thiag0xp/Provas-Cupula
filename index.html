@@ -3,38 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Sistema Integrado</title>
+    <title>Cúpula - Sistema VIP</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
+        
         .container { padding: 20px 5%; max-width: 800px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         /* Grid Membros */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px; }
+        .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
+        .card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; }
+        .nome-membro { color: var(--gold); font-weight: bold; font-size: 15px; margin-bottom: 8px; text-transform: uppercase; }
+        .info-link { color: #888; text-decoration: none; font-size: 12px; display: block; margin: 3px 0; transition: 0.2s; }
+        .info-link:hover { color: var(--gold); }
 
         /* Provas */
-        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 20px; padding: 15px; border-radius: 8px; }
+        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 15px; border-radius: 8px; }
         .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 5px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
         img.render, video, iframe { width: 100%; display: block; border: none; }
         video, iframe { aspect-ratio: 16/9; }
         img.render { height: auto; max-height: 400px; object-fit: contain; }
 
-        /* Admin */
+        /* Admin Panel */
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
         .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
-        .btn-del { color: #ff4444; background: none; border: 1px solid #333; cursor: pointer; font-size: 10px; padding: 5px; margin-top: 8px; border-radius: 3px; width: 100%; }
+        .btn-del { color: #ff4444; background: rgba(255,0,0,0.05); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
 
-        /* Overlay */
-        #zoomOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:1000; }
+        /* Modais */
+        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:1000; }
         #zoomBox { max-width: 90%; max-height: 90%; border: 1px solid var(--gold); }
     </style>
 </head>
@@ -42,7 +46,7 @@
 
 <header>
     <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; cursor: pointer; font-size: 11px;">PAINEL</button>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 6px 15px; cursor: pointer; border-radius: 4px;">PAINEL</button>
 </header>
 
 <nav>
@@ -55,43 +59,46 @@
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); margin:0 0 10px 0; font-size: 16px;">Novo Cadastro</h3>
+        <h3 style="color: var(--gold); margin:0 0 15px 0; font-size: 16px; text-align: center;">GERENCIAMENTO INTERNO</h3>
         <select id="escolhaTipo" onchange="alternarCampos()">
-            <option value="MEMBRO">CADASTRAR MEMBRO</option>
-            <option value="PROVA">CADASTRAR PROVA</option>
+            <option value="MEMBRO">NOVO MEMBRO</option>
+            <option value="PROVA">NOVA PROVA</option>
         </select>
         
         <div id="areaMembro">
-            <input type="text" id="membroNome" placeholder="Nome do Membro">
-            <input type="text" id="membroID" placeholder="ID Único">
+            <input type="text" id="membroNome" placeholder="Nome do Agente">
+            <input type="text" id="membroID" placeholder="ID (Identificação)">
+            <input type="text" id="membroNum" placeholder="Número (Ex: 912345678)">
         </div>
 
         <div id="areaProva" style="display:none;">
-            <input type="text" id="provaTitulo" placeholder="Título da Prova">
-            <input type="text" id="provaLink" placeholder="Link YouTube (Opcional)">
+            <input type="text" id="provaTitulo" placeholder="Título da Ocorrência/Prova">
+            <input type="text" id="provaLink" placeholder="Link YouTube (opcional)">
         </div>
 
-        <div style="margin: 10px 0;">
-            <label style="font-size: 11px; color: var(--gold);">Upload de Arquivo (Foto/Vídeo):</label>
+        <div style="margin: 15px 0;">
+            <label style="font-size: 11px; color: var(--gold);">ARQUIVO (FOTO/VÍDEO):</label>
             <input type="file" id="arquivoPrincipal" accept="image/*,video/*">
         </div>
 
-        <textarea id="observacaoGeral" placeholder="Observações/Detalhes"></textarea>
-        <button class="btn-save" onclick="executarEnvio()">Sincronizar Agora</button>
+        <textarea id="observacaoGeral" placeholder="Observações..."></textarea>
+        <button class="btn-save" onclick="executarEnvio()">SINCRONIZAR DADOS</button>
     </div>
 </div>
 
 <div id="zoomOverlay" onclick="this.style.display='none'"><div id="zoomBox"></div></div>
 
-<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:999;">
-    <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center;">
-        <input type="password" id="senhaAdm" placeholder="Senha">
-        <button class="btn-save" onclick="validarAcesso()">Entrar</button>
+<div id="loginOverlay">
+    <div style="background:#111; padding:35px; border:1px solid var(--gold); text-align:center; border-radius: 8px; width: 280px;">
+        <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
+        <input type="password" id="senhaAdm" placeholder="Digite a Senha">
+        <button class="btn-save" onclick="validarAcesso()">ENTRAR</button>
+        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color: #444; font-size: 10px; margin-top: 15px; cursor: pointer;">FECHAR</p>
     </div>
 </div>
 
 <script>
-    const CHAVE = "123";
+    const CHAVE = "cpx2026"; // Senha atualizada conforme solicitado
     let isAdm = false;
 
     function switchTab(t) {
@@ -112,17 +119,20 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             renderizar();
-        } else alert("Senha Inválida");
+        } else {
+            alert("Senha incorreta!");
+            document.getElementById('senhaAdm').value = "";
+        }
     }
 
     function abrirZoom(src, tipo) {
         const box = document.getElementById('zoomBox');
         box.innerHTML = '';
-        if(tipo === 'foto') box.innerHTML = `<img src="${src}" style="width:100%">`;
-        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay style="width:100%"></video>`;
+        if(tipo === 'foto') box.innerHTML = `<img src="${src}" style="width:100%; max-height:85vh; object-fit:contain;">`;
+        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay style="width:100%; max-height:85vh;"></video>`;
         else {
             const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:80vw; height:45vw;" allowfullscreen></iframe>`;
+            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:85vw; height:48vw;" allowfullscreen></iframe>`;
         }
         document.getElementById('zoomOverlay').style.display = 'flex';
     }
@@ -134,11 +144,10 @@
     });
 
     async function executarEnvio() {
-        let dados = JSON.parse(localStorage.getItem('cupula_final_db') || '{"membros":[],"provas":[]}');
+        let dados = JSON.parse(localStorage.getItem('cupula_cpx_v1') || '{"membros":[],"provas":[]}');
         const tipoEscolhido = document.getElementById('escolhaTipo').value;
         const arquivo = document.getElementById('arquivoPrincipal').files[0];
-        let base64 = "";
-        let extensao = "";
+        let base64 = "", extensao = "";
 
         if(arquivo) {
             base64 = await lerArquivo(arquivo);
@@ -148,7 +157,13 @@
         if(tipoEscolhido === 'MEMBRO') {
             const nome = document.getElementById('membroNome').value;
             if(!nome) return alert("Preencha o nome!");
-            dados.membros.push({ uid: Date.now(), nome, id: document.getElementById('membroID').value, foto: base64 });
+            dados.membros.push({ 
+                uid: Date.now(), 
+                nome, 
+                id: document.getElementById('membroID').value, 
+                num: document.getElementById('membroNum').value,
+                foto: base64 
+            });
         } else {
             const titulo = document.getElementById('provaTitulo').value;
             const linkYt = document.getElementById('provaLink').value;
@@ -162,34 +177,33 @@
             });
         }
 
-        try {
-            localStorage.setItem('cupula_final_db', JSON.stringify(dados));
-            alert("Sincronizado com Sucesso!");
-            // Limpa tudo
-            document.querySelectorAll('input, textarea').forEach(i => i.value = "");
-            renderizar();
-        } catch(e) { alert("Erro: Arquivo muito grande!"); }
+        localStorage.setItem('cupula_cpx_v1', JSON.stringify(dados));
+        alert("Sincronizado!");
+        document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
+        renderizar();
     }
 
     function apagar(cat, id) {
         if(!confirm("Remover permanentemente?")) return;
-        let dados = JSON.parse(localStorage.getItem('cupula_final_db'));
+        let dados = JSON.parse(localStorage.getItem('cupula_cpx_v1'));
         dados[cat] = dados[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_final_db', JSON.stringify(dados));
+        localStorage.setItem('cupula_cpx_v1', JSON.stringify(dados));
         renderizar();
     }
 
     function renderizar() {
-        const dados = JSON.parse(localStorage.getItem('cupula_final_db') || '{"membros":[],"provas":[]}');
+        const dados = JSON.parse(localStorage.getItem('cupula_cpx_v1') || '{"membros":[],"provas":[]}');
         const listaM = document.getElementById('listM');
         const listaP = document.getElementById('listP');
         
         listaM.innerHTML = '';
         dados.membros.forEach(m => {
             listaM.innerHTML += `<div class="card">
-                <img src="${m.foto || 'https://via.placeholder.com/60'}" onclick="abrirZoom('${m.foto}','foto')">
-                <div style="font-size:12px; margin-top:5px;">${m.nome}</div>
-                ${isAdm ? `<button class="btn-del" onclick="apagar('membros',${m.uid})">Apagar</button>` : ''}
+                <img src="${m.foto || 'https://via.placeholder.com/80'}" onclick="abrirZoom('${m.foto}','foto')">
+                <div class="nome-membro">${m.nome}</div>
+                <div class="info-link">ID: ${m.id || '---'}</div>
+                <a href="tel:${m.num}" class="info-link">TEL: ${m.num || '---'}</a>
+                ${isAdm ? `<button class="btn-del" onclick="apagar('membros',${m.uid})">REMOVER</button>` : ''}
             </div>`;
         });
 
@@ -206,10 +220,10 @@
             }
 
             listaP.innerHTML += `<div class="prova-item">
-                <div style="color:var(--gold); font-weight:bold;">${p.titulo}</div>
-                <div style="font-size:11px; color:#888; margin-bottom:10px;">${p.obs}</div>
+                <div style="color:var(--gold); font-weight:bold; font-size: 16px;">${p.titulo}</div>
+                <div style="font-size:12px; color:#888; margin: 5px 0 10px 0;">${p.obs}</div>
                 <div class="media-box" onclick="abrirZoom('${p.midia}','${p.tipo}')">${htmlMidia}</div>
-                ${isAdm ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">Excluir Prova</button>` : ''}
+                ${isAdm ? `<button class="btn-del" onclick="apagar('provas',${p.uid})">APAGAR PROVA</button>` : ''}
             </div>`;
         });
     }
