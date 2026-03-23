@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Sistema VIP</title>
+    <title>Cúpula - Gestão de Cargos</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
@@ -22,9 +22,15 @@
         @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
         .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
-        .card img { width: 110px; height: 110px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 12px; background: #222; }
+        .card img { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 12px; background: #222; }
         
-        .nome-membro { color: var(--gold); font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
+        /* ESTILO DAS TAGS */
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .tag-comum { background: #333; color: #ccc; }
+        .tag-importante { background: #441111; color: #ff6666; border: 1px solid #772222; }
+        .tag-cupula { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+
+        .nome-membro { color: #fff; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
         .info-txt { color: #888; font-size: 12px; margin: 3px 0; text-decoration: none; display: block; }
 
         /* PROVAS */
@@ -39,7 +45,6 @@
         .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 6px; margin-top: 10px; }
         .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 11px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
         
-        /* OVERLAYS */
         #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.97); display:none; justify-content:center; align-items:center; z-index:1000; }
         #zoomBox { max-width: 90%; max-height: 90%; }
         #zoomBox img, #zoomBox video { max-width: 100%; max-height: 85vh; border: 1px solid var(--gold); border-radius: 4px; }
@@ -62,7 +67,7 @@
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">SISTEMA DE ARQUIVOS (MÁX 100MB)</h3>
+        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">SISTEMA DE CADASTRO</h3>
         <select id="tipo" onchange="mudarForm()">
             <option value="M">CADASTRAR MEMBRO</option>
             <option value="P">CADASTRAR PROVA</option>
@@ -70,8 +75,14 @@
         
         <div id="formM">
             <input type="text" id="nome" placeholder="Nome do Agente">
-            <input type="text" id="idU" placeholder="ID (Número Interno)">
+            <input type="text" id="idU" placeholder="ID Interno">
             <input type="text" id="tel" placeholder="Telefone">
+            <label style="font-size: 11px; color: var(--gold); margin-top: 10px; display: block;">CARGO / HIERARQUIA:</label>
+            <select id="cargo">
+                <option value="comum">Membro Comum</option>
+                <option value="importante">Cargo Importante</option>
+                <option value="cupula">Membro Cúpula</option>
+            </select>
         </div>
 
         <div id="formP" style="display:none;">
@@ -85,7 +96,7 @@
         </div>
 
         <textarea id="obs" placeholder="Detalhes e Observações"></textarea>
-        <button class="btn-save" id="btnSalvar" onclick="salvar()">SINCRONIZAR DADOS</button>
+        <button class="btn-save" id="btnSalvar" onclick="salvar()">SINCRONIZAR NOVO DADO</button>
     </div>
 </div>
 
@@ -94,9 +105,8 @@
 <div id="loginOverlay">
     <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 280px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senha" placeholder="Apenas Autorizados">
+        <input type="password" id="senha" placeholder="Senha Autorizada">
         <button class="btn-save" onclick="logar()">ENTRAR</button>
-        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color:#444; font-size:10px; cursor:pointer; margin-top:15px;">CANCELAR</p>
     </div>
 </div>
 
@@ -105,16 +115,13 @@
     let adm = false;
     let dbIDB;
 
-    // INICIALIZAÇÃO DO BANCO
-    const request = indexedDB.open("CupulaEliteDB", 1);
+    // BANCO DE DADOS (Zerei mudando o nome para CupulaFinalV2)
+    const request = indexedDB.open("CupulaFinalV2", 1);
     request.onupgradeneeded = e => {
         dbIDB = e.target.result;
         dbIDB.createObjectStore("items", { keyPath: "id" });
     };
-    request.onsuccess = e => { 
-        dbIDB = e.target.result; 
-        render(); // ESTA LINHA FAZ TODOS VEREM AS POSTAGENS AO ENTRAR
-    };
+    request.onsuccess = e => { dbIDB = e.target.result; render(); };
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
@@ -133,11 +140,8 @@
             adm = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            render(); // RE-RENDERIZA PARA APARECER OS BOTÕES DE APAGAR
-        } else {
-            alert("Acesso Negado!");
-            document.getElementById('senha').value = "";
-        }
+            render();
+        } else alert("Senha Incorreta!");
     }
 
     function abrir(src, tipo) {
@@ -159,10 +163,8 @@
         let midiaBase64 = "", mType = "";
 
         if(file) {
-            if(file.size > 100 * 1024 * 1024) return alert("Erro: Máximo 100MB!");
             btn.disabled = true;
-            btn.innerText = "SINCROIZANDO ARQUIVO PESADO...";
-
+            btn.innerText = "PROCESSANDO...";
             midiaBase64 = await new Promise(r => { 
                 const rd = new FileReader(); 
                 rd.onload = () => r(rd.result); 
@@ -177,6 +179,7 @@
             nome: document.getElementById('nome').value || document.getElementById('tit').value,
             idU: document.getElementById('idU').value,
             tel: document.getElementById('tel').value,
+            cargo: document.getElementById('cargo').value,
             midia: document.getElementById('yt').value || midiaBase64,
             mType: document.getElementById('yt').value ? 'yt' : mType,
             obs: document.getElementById('obs').value
@@ -186,25 +189,23 @@
         tx.objectStore("items").add(data);
         tx.oncomplete = () => {
             btn.disabled = false;
-            btn.innerText = "SINCRONIZAR DADOS";
+            btn.innerText = "SINCRONIZAR NOVO DADO";
             document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
             render();
         };
     }
 
     function apagar(id) {
-        if(!confirm("Remover este registro?")) return;
+        if(!confirm("Remover?")) return;
         const tx = dbIDB.transaction("items", "readwrite");
         tx.objectStore("items").delete(id);
         tx.oncomplete = () => render();
     }
 
-    // ESSA FUNÇÃO É O QUE MOSTRA TUDO PARA TODOS
     function render() {
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
         listM.innerHTML = ''; listP.innerHTML = '';
-
         if(!dbIDB) return;
 
         const tx = dbIDB.transaction("items", "readonly");
@@ -213,9 +214,14 @@
             if(cursor) {
                 const x = cursor.value;
                 if(x.cat === 'M') {
+                    // DEFINE A CLASSE DA TAG PELO CARGO
+                    let tagClasse = x.cargo === 'cupula' ? 'tag-cupula' : (x.cargo === 'importante' ? 'tag-importante' : 'tag-comum');
+                    let tagTexto = x.cargo === 'cupula' ? 'Membro Cúpula' : (x.cargo === 'importante' ? 'Cargo Importante' : 'Membro Comum');
+
                     listM.innerHTML += `
                     <div class="card">
-                        <img src="${x.midia || 'https://via.placeholder.com/110'}" onclick="abrir('${x.midia}','foto')">
+                        <img src="${x.midia || 'https://via.placeholder.com/100'}" onclick="abrir('${x.midia}','foto')">
+                        <div><span class="tag ${tagClasse}">${tagTexto}</span></div>
                         <div class="nome-membro">${x.nome}</div>
                         <div class="info-txt">ID: ${x.idU || '---'}</div>
                         <a href="tel:${x.tel}" class="info-txt">TEL: ${x.tel || '---'}</a>
@@ -228,7 +234,7 @@
                         <div style="color:var(--gold); font-weight:bold; font-size:18px;">${x.nome}</div>
                         <div style="font-size:13px; color:#777; margin:10px 0;">${x.obs}</div>
                         <div class="media-box" onclick="abrir('${x.midia}','${x.mType}')">${mHtml}</div>
-                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">EXCLUIR PROVA</button>` : ''}
+                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">EXCLUIR</button>` : ''}
                     </div>`;
                 }
                 cursor.continue();
