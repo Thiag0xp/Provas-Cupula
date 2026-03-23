@@ -3,113 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Sistema VIP</title>
+    <title>SISTEMA DE INTELIGÊNCIA - PC</title>
     <style>
-        :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
-        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 50px; }
+        :root { --green: #00ff41; --red: #ff0000; --bg: #000000; --card: #0a0a0a; --gold: #d4af37; }
         
-        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index: 100; }
-        nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
-        nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
+        body { background: var(--bg); color: var(--green); font-family: 'Courier New', monospace; margin: 0; overflow-x: hidden; }
         
-        .container { padding: 20px 5%; max-width: 1200px; margin: auto; }
-        .tab-content { display: none; min-height: 200px; }
+        /* EFEITO SCANNER TÁTICO */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 200; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        header { background: #000; padding: 20px 5%; border-bottom: 2px solid var(--green); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(0,255,65,0.3); }
+        
+        .status-bar { font-size: 10px; color: var(--green); text-transform: uppercase; margin-bottom: 15px; padding: 5px; border: 1px solid #111; background: #050505; }
+
+        nav { display: flex; justify-content: center; background: #050505; border-bottom: 1px solid #222; position: sticky; top: 72px; z-index: 100; }
+        nav button { background: none; border: none; color: #444; padding: 15px 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; font-family: 'Courier New'; }
+        nav button.active { color: var(--green); text-shadow: 0 0 8px var(--green); border-bottom: 2px solid var(--green); }
+        
+        .container { padding: 30px 5%; max-width: 1300px; margin: auto; position: relative; z-index: 10; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* GRADE DE 4 POR LINHA FIXA */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
+        /* GRADE TÁTICA 4 POR LINHA */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .card { background: var(--card); padding: 20px; border: 1px solid #222; position: relative; transition: 0.3s; }
+        .card:hover { border-color: var(--green); }
         
-        /* NO CELULAR: 2 POR LINHA PARA NÃO FICAR MINÚSCULO */
-        @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-
-        .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); text-align: center; height: fit-content; }
-        .card img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 10px; background: #222; }
+        .card img { width: 100%; aspect-ratio: 3/4; border: 1px solid #333; filter: grayscale(100%); object-fit: cover; margin-bottom: 15px; cursor: pointer; }
+        .card:hover img { filter: none; }
         
-        /* TAGS DE CARGO */
-        .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
-        .tag-comum { background: #333; color: #ccc; }
-        .tag-importante { background: #441111; color: #ff6666; border: 1px solid #772222; }
-        .tag-cupula { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+        .tag { font-size: 9px; padding: 3px 8px; border: 1px solid #444; margin-bottom: 10px; display: inline-block; font-weight: bold; }
+        .tag-cupula { border-color: var(--gold); color: var(--gold); }
+        .tag-importante { border-color: var(--red); color: var(--red); }
+        .tag-comum { border-color: #666; color: #666; }
 
-        .nome-membro { color: #fff; font-weight: bold; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; }
-        .info-txt { color: #888; font-size: 11px; margin: 2px 0; text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; }
+        .nome-membro { font-size: 15px; font-weight: bold; margin-bottom: 8px; color: #fff; text-transform: uppercase; }
+        .info-txt { font-size: 11px; color: #666; margin: 4px 0; }
+        .info-txt b { color: var(--green); }
 
-        /* PROVAS */
-        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 15px; border-radius: 10px; }
-        .media-box { width: 100%; margin-top: 12px; background: #000; border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
-        .render-img, video, iframe { width: 100%; display: block; border: none; }
-        video, iframe { aspect-ratio: 16/9; }
+        /* PROVAS / EVIDÊNCIAS */
+        .prova-item { background: #080808; border: 1px solid #222; border-left: 4px solid var(--red); margin-bottom: 30px; padding: 20px; }
+        .media-box { width: 100%; margin-top: 15px; border: 1px solid #222; cursor: pointer; }
+        .render-img, video, iframe { width: 100%; display: block; }
 
         /* ADMIN */
-        #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 6px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; margin-top: 10px; }
-        .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 10px; padding: 8px; margin-top: 12px; border-radius: 4px; width: 100%; }
+        #adminPanel { background: #0a0a0a; border: 1px solid var(--green); padding: 30px; margin-top: 20px; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.1); }
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--green); font-family: 'Courier New'; }
+        .btn-save { background: var(--green); color: #000; font-weight: bold; border: none; padding: 15px; cursor: pointer; width: 100%; text-transform: uppercase; }
+        .btn-del { color: var(--red); background: none; border: 1px solid var(--red); cursor: pointer; font-size: 10px; padding: 5px; margin-top: 15px; width: 100%; }
         
-        /* ZOOM E LOGIN */
-        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); display:none; justify-content:center; align-items:center; z-index:1000; }
-        #zoomBox { max-width: 95%; max-height: 90%; text-align: center; }
-        #zoomBox img, #zoomBox video { max-width: 100%; max-height: 80vh; border: 1px solid var(--gold); }
+        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.96); display:none; justify-content:center; align-items:center; z-index:1000; }
+        #zoomBox { max-width: 90%; max-height: 90%; border: 1px solid var(--green); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px; font-size: 18px;">CÚPULA</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 12px;">ADM</button>
+    <div style="font-size: 20px; font-weight: bold; text-shadow: 0 0 10px var(--green);">[ TERMINAL_PC_BRAZIL ]</div>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--green); color: var(--green); padding: 5px 15px; cursor: pointer; font-size: 11px;">MODO_EDITOR</button>
 </header>
 
 <nav>
-    <button onclick="tab('m')" id="nav-m" class="active">Membros</button>
-    <button onclick="tab('p')" id="nav-p">Provas</button>
+    <button onclick="tab('m')" id="nav-m" class="active">BANCO DE AGENTES</button>
+    <button onclick="tab('p')" id="nav-p">ARQUIVO DE PROVAS</button>
 </nav>
 
 <div class="container">
+    <div class="status-bar" id="status">ACESSO PÚBLICO LIBERADO // CARREGANDO DADOS...</div>
+
     <div id="tab-m" class="tab-content active"><div id="listM" class="grid"></div></div>
     <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); text-align: center; margin-top: 0; font-size: 16px;">NOVO CADASTRO</h3>
+        <h3 style="text-align: center; color: var(--green);">PAINEL DE CONTROLE CRIMINAL</h3>
         <select id="tipo" onchange="mudarForm()">
-            <option value="M">Membro (Agente)</option>
-            <option value="P">Prova (Arquivo/Vídeo)</option>
+            <option value="M">NOVO AGENTE</option>
+            <option value="P">NOVA EVIDÊNCIA</option>
         </select>
         
         <div id="formM">
-            <input type="text" id="nome" placeholder="Nome">
-            <input type="text" id="idU" placeholder="ID">
-            <input type="text" id="tel" placeholder="Telefone">
+            <input type="text" id="nome" placeholder="NOME COMPLETO">
+            <input type="text" id="idU" placeholder="NÚMERO DE REGISTRO">
+            <input type="text" id="tel" placeholder="CONTATO OPERACIONAL">
             <select id="cargo">
-                <option value="comum">Membro Comum</option>
-                <option value="importante">Cargo Importante</option>
-                <option value="cupula">Membro Cúpula</option>
+                <option value="comum">OPERACIONAL</option>
+                <option value="importante">ESPECIALISTA</option>
+                <option value="cupula">ALTO COMANDO</option>
             </select>
         </div>
 
         <div id="formP" style="display:none;">
-            <input type="text" id="tit" placeholder="Título da Prova">
-            <input type="text" id="yt" placeholder="Link YouTube (Opcional)">
+            <input type="text" id="tit" placeholder="TÍTULO DA EVIDÊNCIA">
+            <input type="text" id="yt" placeholder="LINK VÍDEO (OPCIONAL)">
         </div>
 
         <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">ARQUIVO (MÁX 100MB):</label>
+            <label style="font-size: 11px;">ANEXAR MÍDIA (MÁX 100MB):</label>
             <input type="file" id="up" accept="image/*,video/*">
         </div>
 
-        <textarea id="obs" placeholder="Observações"></textarea>
-        <button class="btn-save" id="btnSalvar" onclick="salvar()">SALVAR AGORA</button>
+        <textarea id="obs" placeholder="RELATÓRIO DE OBSERVAÇÃO..."></textarea>
+        <button class="btn-save" id="btnSalvar" onclick="salvar()">REGISTRAR NO SISTEMA</button>
     </div>
 </div>
 
 <div id="zoomOverlay" onclick="this.style.display='none'"><div id="zoomBox"></div></div>
 
 <div id="loginOverlay">
-    <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 260px;">
-        <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senha" placeholder="Senha ADM">
-        <button class="btn-save" onclick="logar()">ENTRAR</button>
-        <div onclick="document.getElementById('loginOverlay').style.display='none'" style="color:#555; font-size:11px; margin-top:15px; cursor:pointer;">FECHAR</div>
+    <div style="background:#0a0a0a; padding:40px; border:2px solid var(--green); text-align:center;">
+        <h4 style="margin-top:0;">CHAVE DE SEGURANÇA</h4>
+        <input type="password" id="senha" style="text-align:center;">
+        <button class="btn-save" onclick="logar()">ACESSO ADMIN</button>
+        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color:#333; font-size:10px; cursor:pointer; margin-top:10px;">FECHAR</p>
     </div>
 </div>
 
@@ -118,21 +129,19 @@
     let adm = false;
     let db;
 
-    // BANCO DE DADOS (Nome fixo para manter consistência)
-    const request = indexedDB.open("CupulaEliteDB_V3", 1);
-    request.onupgradeneeded = e => {
-        e.target.result.createObjectStore("items", { keyPath: "id" });
-    };
+    // BANCO DE DADOS (Unificado para visualização pública)
+    const request = indexedDB.open("SistemaPC_Final", 1);
+    request.onupgradeneeded = e => { e.target.result.createObjectStore("items", { keyPath: "id" }); };
     request.onsuccess = e => { 
         db = e.target.result; 
-        render(); // Chama assim que abre
+        render();
+        document.getElementById('status').innerText = "SISTEMA ONLINE // DADOS SINCRONIZADOS";
     };
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
         document.getElementById('tab-'+t).classList.add('active');
         document.getElementById('nav-'+t).classList.add('active');
-        render(); // Garante que carrega ao trocar de aba
     }
 
     function mudarForm() {
@@ -147,17 +156,18 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else alert("Senha incorreta!");
+            alert("MODO EDITOR ATIVADO");
+        } else alert("ACESSO NEGADO");
     }
 
     function abrir(src, tipo) {
         const box = document.getElementById('zoomBox');
         box.innerHTML = '';
-        if(tipo === 'foto') box.innerHTML = `<img src="${src}">`;
-        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay></video>`;
+        if(tipo === 'foto') box.innerHTML = `<img src="${src}" style="width:100%;">`;
+        else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay style="width:100%;"></video>`;
         else {
             const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:90vw; height:50vw;" allowfullscreen></iframe>`;
+            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:85vw; height:48vw;" allowfullscreen></iframe>`;
         }
         document.getElementById('zoomOverlay').style.display = 'flex';
     }
@@ -168,12 +178,8 @@
         let midia = "", mType = "";
 
         if(file) {
-            btn.disabled = true; btn.innerText = "SINCROIZANDO...";
-            midia = await new Promise(r => { 
-                const rd = new FileReader(); 
-                rd.onload = () => r(rd.result); 
-                rd.readAsDataURL(file); 
-            });
+            btn.disabled = true; btn.innerText = "GRAVANDO NA MEMÓRIA...";
+            midia = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(file); });
             mType = file.type.startsWith('image') ? 'foto' : 'video';
         }
 
@@ -192,14 +198,14 @@
         const tx = db.transaction("items", "readwrite");
         tx.objectStore("items").add(data);
         tx.oncomplete = () => {
-            btn.disabled = false; btn.innerText = "SALVAR AGORA";
+            btn.disabled = false; btn.innerText = "REGISTRAR NO SISTEMA";
             document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
             render();
         };
     }
 
     function apagar(id) {
-        if(!confirm("Remover?")) return;
+        if(!confirm("ELIMINAR ESTE REGISTRO DEFINITIVAMENTE?")) return;
         const tx = db.transaction("items", "readwrite");
         tx.objectStore("items").delete(id);
         tx.oncomplete = () => render();
@@ -211,7 +217,6 @@
         if(!db || !listM || !listP) return;
 
         listM.innerHTML = ''; listP.innerHTML = '';
-
         const tx = db.transaction("items", "readonly");
         tx.objectStore("items").openCursor().onsuccess = e => {
             const cursor = e.target.result;
@@ -219,34 +224,32 @@
                 const x = cursor.value;
                 if(x.cat === 'M') {
                     let tagCls = x.cargo === 'cupula' ? 'tag-cupula' : (x.cargo === 'importante' ? 'tag-importante' : 'tag-comum');
-                    let tagTxt = x.cargo === 'cupula' ? 'Membro Cúpula' : (x.cargo === 'importante' ? 'Cargo Importante' : 'Membro Comum');
-                    
+                    let tagTxt = x.cargo === 'cupula' ? 'ALTO COMANDO' : (x.cargo === 'importante' ? 'ESPECIALISTA' : 'OPERACIONAL');
                     listM.innerHTML += `
                     <div class="card">
-                        <img src="${x.midia || 'https://via.placeholder.com/100'}" onclick="abrir('${x.midia}','foto')">
-                        <div><span class="tag ${tagCls}">${tagTxt}</span></div>
+                        <img src="${x.midia || 'https://via.placeholder.com/120x160?text=NO_FILE'}" onclick="abrir('${x.midia}','foto')">
+                        <span class="tag ${tagCls}">${tagTxt}</span>
                         <div class="nome-membro">${x.nome}</div>
-                        <div class="info-txt">ID: ${x.idU || '---'}</div>
-                        <a href="tel:${x.tel}" class="info-txt">TEL: ${x.tel || '---'}</a>
-                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">REMOVER</button>` : ''}
+                        <div class="info-txt">ID_REG: <b>${x.idU || 'N/A'}</b></div>
+                        <div class="info-txt">CONTATO: <b>${x.tel || 'N/A'}</b></div>
+                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">ELIMINAR_REGISTRO</button>` : ''}
                     </div>`;
                 } else {
                     let mHtml = x.mType === 'yt' ? `<iframe src="https://www.youtube.com/embed/${x.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1]}"></iframe>` : (x.mType === 'foto' ? `<img src="${x.midia}" class="render-img">` : `<video src="${x.midia}"></video>`);
                     listP.innerHTML += `
                     <div class="prova-item">
-                        <div style="color:var(--gold); font-weight:bold; font-size:16px;">${x.nome}</div>
-                        <div style="font-size:12px; color:#777; margin:8px 0;">${x.obs}</div>
+                        <div style="color:var(--green); font-weight:bold; font-size:16px;">EVIDÊNCIA: ${x.nome}</div>
+                        <div style="font-size:12px; color:#666; margin:10px 0;">NOTAS: ${x.obs}</div>
                         <div class="media-box" onclick="abrir('${x.midia}','${x.mType}')">${mHtml}</div>
-                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">EXCLUIR</button>` : ''}
+                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">DELETAR_EVIDENCIA</button>` : ''}
                     </div>`;
                 }
                 cursor.continue();
             }
         };
     }
-
-    // TENTA RENDERIZAR A CADA 1 SEGUNDO CASO O BANCO DEMORE NO CELULAR
-    setInterval(() => { if(!document.querySelector('.card') && !document.querySelector('.prova-item')) render(); }, 2000);
+    // Sincronização automática para evitar tela branca em dispositivos lentos
+    setInterval(() => { if(db && !document.querySelector('.card') && !document.querySelector('.prova-item')) render(); }, 3000);
 </script>
 </body>
 </html>
