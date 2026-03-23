@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Sistema VIP v10</title>
+    <title>Cúpula - Sistema VIP</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         
-        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:100; }
+        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index: 100; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
         nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
@@ -18,13 +18,7 @@
         .tab-content.active { display: block; }
 
         /* GRADE DE 4 POR LINHA */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 20px; 
-            width: 100%;
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; }
         @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
         .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
@@ -43,10 +37,9 @@
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 25px; margin-top: 20px; display: none; border-radius: 10px; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; }
         .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 6px; margin-top: 10px; }
-        .btn-save:disabled { background: #555; color: #888; cursor: not-allowed; }
         .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 11px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
         
-        /* ZOOM */
+        /* OVERLAYS */
         #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.97); display:none; justify-content:center; align-items:center; z-index:1000; }
         #zoomBox { max-width: 90%; max-height: 90%; }
         #zoomBox img, #zoomBox video { max-width: 100%; max-height: 85vh; border: 1px solid var(--gold); border-radius: 4px; }
@@ -78,7 +71,7 @@
         <div id="formM">
             <input type="text" id="nome" placeholder="Nome do Agente">
             <input type="text" id="idU" placeholder="ID (Número Interno)">
-            <input type="text" id="tel" placeholder="Telefone (Clique para ligar)">
+            <input type="text" id="tel" placeholder="Telefone">
         </div>
 
         <div id="formP" style="display:none;">
@@ -87,7 +80,7 @@
         </div>
 
         <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">SUBIR FOTO/VÍDEO (ATÉ 100MB):</label>
+            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">SUBIR ARQUIVO (ATÉ 100MB):</label>
             <input type="file" id="up" accept="image/*,video/*">
         </div>
 
@@ -101,8 +94,9 @@
 <div id="loginOverlay">
     <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 280px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senha" placeholder="Senha cpx2026">
+        <input type="password" id="senha" placeholder="Apenas Autorizados">
         <button class="btn-save" onclick="logar()">ENTRAR</button>
+        <p onclick="document.getElementById('loginOverlay').style.display='none'" style="color:#444; font-size:10px; cursor:pointer; margin-top:15px;">CANCELAR</p>
     </div>
 </div>
 
@@ -111,13 +105,16 @@
     let adm = false;
     let dbIDB;
 
-    // ABRIR BANCO DE DADOS ROBUSTO
+    // INICIALIZAÇÃO DO BANCO
     const request = indexedDB.open("CupulaEliteDB", 1);
     request.onupgradeneeded = e => {
         dbIDB = e.target.result;
         dbIDB.createObjectStore("items", { keyPath: "id" });
     };
-    request.onsuccess = e => { dbIDB = e.target.result; render(); };
+    request.onsuccess = e => { 
+        dbIDB = e.target.result; 
+        render(); // ESTA LINHA FAZ TODOS VEREM AS POSTAGENS AO ENTRAR
+    };
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
@@ -136,8 +133,11 @@
             adm = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            render();
-        } else alert("Senha Incorreta!");
+            render(); // RE-RENDERIZA PARA APARECER OS BOTÕES DE APAGAR
+        } else {
+            alert("Acesso Negado!");
+            document.getElementById('senha').value = "";
+        }
     }
 
     function abrir(src, tipo) {
@@ -159,9 +159,9 @@
         let midiaBase64 = "", mType = "";
 
         if(file) {
-            if(file.size > 100 * 1024 * 1024) return alert("Erro: Arquivo maior que 100MB!");
+            if(file.size > 100 * 1024 * 1024) return alert("Erro: Máximo 100MB!");
             btn.disabled = true;
-            btn.innerText = "PROCESSANDO ARQUIVO GRANDE...";
+            btn.innerText = "SINCROIZANDO ARQUIVO PESADO...";
 
             midiaBase64 = await new Promise(r => { 
                 const rd = new FileReader(); 
@@ -185,7 +185,6 @@
         const tx = dbIDB.transaction("items", "readwrite");
         tx.objectStore("items").add(data);
         tx.oncomplete = () => {
-            alert("Sucesso! Registro guardado.");
             btn.disabled = false;
             btn.innerText = "SINCRONIZAR DADOS";
             document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
@@ -194,16 +193,19 @@
     }
 
     function apagar(id) {
-        if(!confirm("Remover este registro permanentemente?")) return;
+        if(!confirm("Remover este registro?")) return;
         const tx = dbIDB.transaction("items", "readwrite");
         tx.objectStore("items").delete(id);
         tx.oncomplete = () => render();
     }
 
+    // ESSA FUNÇÃO É O QUE MOSTRA TUDO PARA TODOS
     function render() {
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
         listM.innerHTML = ''; listP.innerHTML = '';
+
+        if(!dbIDB) return;
 
         const tx = dbIDB.transaction("items", "readonly");
         tx.objectStore("items").openCursor().onsuccess = e => {
