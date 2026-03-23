@@ -19,8 +19,9 @@
         .card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
         .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 20px; border-radius: 10px; }
         .media-box { width: 100%; margin-top: 15px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        video, iframe { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
-        img.prova-render { width: 100%; height: auto; display: block; }
+        video, iframe, .img-render { width: 100%; display: block; border: none; }
+        video, iframe { aspect-ratio: 16/9; }
+        .img-render { height: auto; max-height: 500px; object-fit: contain; }
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
         input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
         .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
@@ -32,7 +33,7 @@
 
 <header>
     <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA SISTEMA</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; cursor: pointer; font-size: 12px;">ADM</button>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; cursor: pointer;">ADM</button>
 </header>
 
 <nav>
@@ -45,10 +46,10 @@
     <div id="t-provas" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h4 style="color: var(--gold); margin:0 0 10px 0;">Novo Registro</h4>
+        <h4 style="color: var(--gold); margin:0 0 10px 0;">Cadastrar Prova/Membro</h4>
         <select id="tipo" onchange="toggleF()">
             <option value="m">Membro</option>
-            <option value="p">Prova (Vídeo/Foto)</option>
+            <option value="p">Prova (Foto ou Vídeo)</option>
         </select>
         
         <div id="fM">
@@ -58,11 +59,11 @@
 
         <div id="fP" style="display:none;">
             <input type="text" id="tit" placeholder="Título da Prova">
-            <input type="text" id="link" placeholder="Link do Vídeo (YouTube ou MP4)">
+            <input type="text" id="link" placeholder="Link YouTube (opcional se subir arquivo)">
         </div>
 
         <div style="margin:10px 0;">
-            <label style="font-size:11px; color:gray;">Upload de Arquivo (Opcional):</label>
+            <label style="font-size:11px; color:gray;">Subir Foto ou Vídeo:</label>
             <input type="file" id="fileUp" accept="image/*,video/*">
         </div>
 
@@ -73,7 +74,7 @@
 
 <div id="loginOverlay">
     <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius:8px;">
-        <input type="password" id="pw" placeholder="Senha">
+        <input type="password" id="pw" placeholder="Senha ADM">
         <button class="btn-save" onclick="login()">Entrar</button>
     </div>
 </div>
@@ -100,7 +101,7 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else alert("Erro");
+        } else alert("Senha incorreta");
     }
 
     const toB64 = f => new Promise((res) => {
@@ -110,7 +111,7 @@
     });
 
     async function save() {
-        let db = JSON.parse(localStorage.getItem('cupula_db') || '{"m":[],"p":[]}');
+        let db = JSON.parse(localStorage.getItem('cupula_db_v2') || '{"m":[],"p":[]}');
         const tipo = document.getElementById('tipo').value;
         const file = document.getElementById('fileUp').files[0];
         let midia = "";
@@ -118,7 +119,7 @@
 
         if(file) {
             midia = await toB64(file);
-            mType = file.type.startsWith('image') ? 'img' : 'vid';
+            mType = file.type.startsWith('image') ? 'foto' : 'video';
         }
 
         if(tipo === 'm') {
@@ -129,28 +130,29 @@
                 uid: Date.now(), 
                 t: document.getElementById('tit').value, 
                 src: url || midia, 
-                tp: url ? 'url' : mType,
+                tipo: url ? 'youtube' : mType,
                 obs: document.getElementById('obs').value 
             });
         }
 
         try {
-            localStorage.setItem('cupula_db', JSON.stringify(db));
+            localStorage.setItem('cupula_db_v2', JSON.stringify(db));
             render();
-            alert("Sucesso!");
-        } catch(e) { alert("Arquivo muito grande!"); }
+            alert("Sincronizado!");
+            document.getElementById('fileUp').value = "";
+        } catch(e) { alert("Memória cheia! Tente um arquivo menor ou use link."); }
     }
 
     function del(cat, id) {
         if(!confirm("Excluir?")) return;
-        let db = JSON.parse(localStorage.getItem('cupula_db'));
+        let db = JSON.parse(localStorage.getItem('cupula_db_v2'));
         db[cat] = db[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_db', JSON.stringify(db));
+        localStorage.setItem('cupula_db_v2', JSON.stringify(db));
         render();
     }
 
     function render() {
-        const db = JSON.parse(localStorage.getItem('cupula_db') || '{"m":[],"p":[]}');
+        const db = JSON.parse(localStorage.getItem('cupula_db_v2') || '{"m":[],"p":[]}');
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
         
@@ -158,29 +160,29 @@
         db.m.forEach(m => {
             listM.innerHTML += `<div class="card">
                 <img src="${m.foto || 'https://via.placeholder.com/80'}">
-                <h5>${m.n}</h5><p>ID: ${m.id}</p>
+                <h5>${m.n}</h5><p style="font-size:12px;color:gray;">ID: ${m.id}</p>
                 ${adm ? `<button class="btn-del" onclick="del('m',${m.uid})">Apagar</button>` : ''}
             </div>`;
         });
 
         listP.innerHTML = '';
         db.p.forEach(p => {
-            let html = "";
+            let player = "";
             const yt = p.src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/);
             
             if(yt) {
-                html = `<iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;
-            } else if (p.tp === 'img' || p.src.startsWith('data:image')) {
-                html = `<img src="${p.src}" class="prova-render">`;
+                player = `<iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>`;
+            } else if (p.tipo === 'foto' || p.src.startsWith('data:image')) {
+                player = `<img src="${p.src}" class="img-render">`;
             } else {
-                html = `<video controls><source src="${p.src}">Erro</video>`;
+                player = `<video controls><source src="${p.src}">Erro</video>`;
             }
 
             listP.innerHTML += `<div class="prova-item">
                 <h3 style="color:var(--gold);margin:0;">${p.t}</h3>
                 <p style="font-size:13px;color:#888;">${p.obs}</p>
-                <div class="media-box">${html}</div>
-                ${adm ? `<button class="btn-del" onclick="del('p',${p.uid})">Remover Prova</button>` : ''}
+                <div class="media-box">${player}</div>
+                ${adm ? `<button class="btn-del" onclick="apagar_prova" onclick="del('p',${p.uid})">Excluir Prova</button>` : ''}
             </div>`;
         });
     }
