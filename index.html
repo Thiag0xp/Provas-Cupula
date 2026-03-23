@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cúpula - Gestão de Elite</title>
+    <title>Cúpula - Sistema VIP v10</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
         body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         
-        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:100; }
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
         nav button { background: none; border: none; color: #555; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
@@ -17,7 +17,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* GRADE FIXA: 4 MEMBROS POR LINHA */
+        /* GRADE DE 4 POR LINHA */
         .grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
@@ -25,12 +25,10 @@
             width: 100%;
         }
 
-        /* AJUSTE PARA CELULAR (2 por linha para não ficar espremido) */
-        @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
-        .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; transition: 0.3s; }
-        .card:hover { border-color: var(--gold); }
-        .card img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 12px; background: #222; }
+        .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
+        .card img { width: 110px; height: 110px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; cursor: pointer; margin-bottom: 12px; background: #222; }
         
         .nome-membro { color: var(--gold); font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 5px; }
         .info-txt { color: #888; font-size: 12px; margin: 3px 0; text-decoration: none; display: block; }
@@ -45,10 +43,11 @@
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 25px; margin-top: 20px; display: none; border-radius: 10px; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; }
         .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 14px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 6px; margin-top: 10px; }
+        .btn-save:disabled { background: #555; color: #888; cursor: not-allowed; }
         .btn-del { color: #ff4444; background: rgba(255,0,0,0.1); border: 1px solid #422; cursor: pointer; font-size: 11px; padding: 8px; margin-top: 15px; border-radius: 4px; width: 100%; }
         
         /* ZOOM */
-        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.96); display:none; justify-content:center; align-items:center; z-index:1000; }
+        #zoomOverlay, #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.97); display:none; justify-content:center; align-items:center; z-index:1000; }
         #zoomBox { max-width: 90%; max-height: 90%; }
         #zoomBox img, #zoomBox video { max-width: 100%; max-height: 85vh; border: 1px solid var(--gold); border-radius: 4px; }
     </style>
@@ -57,7 +56,7 @@
 
 <header>
     <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px; font-size: 20px;">CÚPULA</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 6px 18px; cursor: pointer; font-weight: bold; border-radius: 4px;">PAINEL ADM</button>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 6px 18px; cursor: pointer; font-weight: bold; border-radius: 4px;">ADM</button>
 </header>
 
 <nav>
@@ -66,48 +65,43 @@
 </nav>
 
 <div class="container">
-    <div id="tab-m" class="tab-content active">
-        <div id="listM" class="grid"></div>
-    </div>
-    
-    <div id="tab-p" class="tab-content">
-        <div id="listP"></div>
-    </div>
+    <div id="tab-m" class="tab-content active"><div id="listM" class="grid"></div></div>
+    <div id="tab-p" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">ADICIONAR REGISTRO</h3>
+        <h3 style="color: var(--gold); text-align: center; margin-top: 0;">SISTEMA DE ARQUIVOS (MÁX 100MB)</h3>
         <select id="tipo" onchange="mudarForm()">
-            <option value="M">MEMBRO (Agente)</option>
-            <option value="P">PROVA (Arquivo)</option>
+            <option value="M">CADASTRAR MEMBRO</option>
+            <option value="P">CADASTRAR PROVA</option>
         </select>
         
         <div id="formM">
-            <input type="text" id="nome" placeholder="Nome do Membro">
-            <input type="text" id="idU" placeholder="ID Interno">
-            <input type="text" id="tel" placeholder="Telefone (Ex: 912345678)">
+            <input type="text" id="nome" placeholder="Nome do Agente">
+            <input type="text" id="idU" placeholder="ID (Número Interno)">
+            <input type="text" id="tel" placeholder="Telefone (Clique para ligar)">
         </div>
 
         <div id="formP" style="display:none;">
             <input type="text" id="tit" placeholder="Título da Prova">
-            <input type="text" id="yt" placeholder="Link YouTube (Se houver)">
+            <input type="text" id="yt" placeholder="Link YouTube (Opcional)">
         </div>
 
         <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">FOTO OU VÍDEO:</label>
+            <label style="font-size: 11px; color: var(--gold); font-weight: bold;">SUBIR FOTO/VÍDEO (ATÉ 100MB):</label>
             <input type="file" id="up" accept="image/*,video/*">
         </div>
 
-        <textarea id="obs" placeholder="Observações e detalhes importantes..."></textarea>
-        <button class="btn-save" onclick="salvar()">FINALIZAR E ENVIAR</button>
+        <textarea id="obs" placeholder="Detalhes e Observações"></textarea>
+        <button class="btn-save" id="btnSalvar" onclick="salvar()">SINCRONIZAR DADOS</button>
     </div>
 </div>
 
 <div id="zoomOverlay" onclick="this.style.display='none'"><div id="zoomBox"></div></div>
 
 <div id="loginOverlay">
-    <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 300px;">
+    <div style="background:#111; padding:40px; border:1px solid var(--gold); text-align:center; border-radius: 12px; width: 280px;">
         <h4 style="color: var(--gold); margin-top: 0;">ACESSO RESTRITO</h4>
-        <input type="password" id="senha" placeholder="Senha CPX">
+        <input type="password" id="senha" placeholder="Senha cpx2026">
         <button class="btn-save" onclick="logar()">ENTRAR</button>
     </div>
 </div>
@@ -115,6 +109,15 @@
 <script>
     const KEY = "cpx2026";
     let adm = false;
+    let dbIDB;
+
+    // ABRIR BANCO DE DADOS ROBUSTO
+    const request = indexedDB.open("CupulaEliteDB", 1);
+    request.onupgradeneeded = e => {
+        dbIDB = e.target.result;
+        dbIDB.createObjectStore("items", { keyPath: "id" });
+    };
+    request.onsuccess = e => { dbIDB = e.target.result; render(); };
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
@@ -134,7 +137,7 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else alert("Senha incorreta!");
+        } else alert("Senha Incorreta!");
     }
 
     function abrir(src, tipo) {
@@ -142,7 +145,7 @@
         box.innerHTML = '';
         if(tipo === 'foto') box.innerHTML = `<img src="${src}">`;
         else if(tipo === 'video') box.innerHTML = `<video src="${src}" controls autoplay></video>`;
-        else if(tipo === 'yt') {
+        else {
             const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
             box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:85vw; height:48vw;" allowfullscreen></iframe>`;
         }
@@ -150,13 +153,17 @@
     }
 
     async function salvar() {
-        let db = JSON.parse(localStorage.getItem('cupula_cpx_final') || '{"m":[],"p":[]}');
-        const tipo = document.getElementById('tipo').value;
+        const btn = document.getElementById('btnSalvar');
         const file = document.getElementById('up').files[0];
-        let base64 = "", mType = "";
+        const tipo = document.getElementById('tipo').value;
+        let midiaBase64 = "", mType = "";
 
         if(file) {
-            base64 = await new Promise(r => { 
+            if(file.size > 100 * 1024 * 1024) return alert("Erro: Arquivo maior que 100MB!");
+            btn.disabled = true;
+            btn.innerText = "PROCESSANDO ARQUIVO GRANDE...";
+
+            midiaBase64 = await new Promise(r => { 
                 const rd = new FileReader(); 
                 rd.onload = () => r(rd.result); 
                 rd.readAsDataURL(file); 
@@ -164,72 +171,68 @@
             mType = file.type.startsWith('image') ? 'foto' : 'video';
         }
 
-        if(tipo === 'M') {
-            const n = document.getElementById('nome').value;
-            if(!n) return alert("Nome é obrigatório!");
-            db.m.push({ uid: Date.now(), n, id: document.getElementById('idU').value, t: document.getElementById('tel').value, f: base64 });
-        } else {
-            const t = document.getElementById('tit').value;
-            const y = document.getElementById('yt').value;
-            if(!t) return alert("Título é obrigatório!");
-            db.p.push({ uid: Date.now(), t, m: y || base64, tipo: y ? 'yt' : mType, o: document.getElementById('obs').value });
-        }
+        const data = {
+            id: Date.now(),
+            cat: tipo,
+            nome: document.getElementById('nome').value || document.getElementById('tit').value,
+            idU: document.getElementById('idU').value,
+            tel: document.getElementById('tel').value,
+            midia: document.getElementById('yt').value || midiaBase64,
+            mType: document.getElementById('yt').value ? 'yt' : mType,
+            obs: document.getElementById('obs').value
+        };
 
-        try {
-            localStorage.setItem('cupula_cpx_final', JSON.stringify(db));
-            alert("Sincronizado!");
+        const tx = dbIDB.transaction("items", "readwrite");
+        tx.objectStore("items").add(data);
+        tx.oncomplete = () => {
+            alert("Sucesso! Registro guardado.");
+            btn.disabled = false;
+            btn.innerText = "SINCRONIZAR DADOS";
             document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
             render();
-        } catch(e) { alert("Erro: Foto muito pesada!"); }
+        };
     }
 
-    function apagar(cat, id) {
-        if(!confirm("Remover?")) return;
-        let db = JSON.parse(localStorage.getItem('cupula_cpx_final'));
-        db[cat] = db[cat].filter(x => x.uid !== id);
-        localStorage.setItem('cupula_cpx_final', JSON.stringify(db));
-        render();
+    function apagar(id) {
+        if(!confirm("Remover este registro permanentemente?")) return;
+        const tx = dbIDB.transaction("items", "readwrite");
+        tx.objectStore("items").delete(id);
+        tx.oncomplete = () => render();
     }
 
     function render() {
-        const db = JSON.parse(localStorage.getItem('cupula_cpx_final') || '{"m":[],"p":[]}');
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
-        
-        listM.innerHTML = '';
-        db.m.forEach(x => {
-            listM.innerHTML += `
-            <div class="card">
-                <img src="${x.f || 'https://via.placeholder.com/90'}" onclick="abrir('${x.f}','foto')">
-                <div class="nome-membro">${x.n}</div>
-                <div class="info-txt">ID: ${x.id || '---'}</div>
-                <a href="tel:${x.t}" class="info-txt">TEL: ${x.t || '---'}</a>
-                ${adm ? `<button class="btn-del" onclick="apagar('m',${x.uid})">REMOVER</button>` : ''}
-            </div>`;
-        });
+        listM.innerHTML = ''; listP.innerHTML = '';
 
-        listP.innerHTML = '';
-        db.p.forEach(x => {
-            let midiaHtml = "";
-            if(x.tipo === 'yt') {
-                const id = x.m.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-                midiaHtml = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
-            } else if(x.tipo === 'foto') {
-                midiaHtml = `<img src="${x.m}" class="render-img">`;
-            } else {
-                midiaHtml = `<video src="${x.m}"></video>`;
+        const tx = dbIDB.transaction("items", "readonly");
+        tx.objectStore("items").openCursor().onsuccess = e => {
+            const cursor = e.target.result;
+            if(cursor) {
+                const x = cursor.value;
+                if(x.cat === 'M') {
+                    listM.innerHTML += `
+                    <div class="card">
+                        <img src="${x.midia || 'https://via.placeholder.com/110'}" onclick="abrir('${x.midia}','foto')">
+                        <div class="nome-membro">${x.nome}</div>
+                        <div class="info-txt">ID: ${x.idU || '---'}</div>
+                        <a href="tel:${x.tel}" class="info-txt">TEL: ${x.tel || '---'}</a>
+                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">REMOVER</button>` : ''}
+                    </div>`;
+                } else {
+                    let mHtml = x.mType === 'yt' ? `<iframe src="https://www.youtube.com/embed/${x.midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1]}"></iframe>` : (x.mType === 'foto' ? `<img src="${x.midia}" class="render-img">` : `<video src="${x.midia}"></video>`);
+                    listP.innerHTML += `
+                    <div class="prova-item">
+                        <div style="color:var(--gold); font-weight:bold; font-size:18px;">${x.nome}</div>
+                        <div style="font-size:13px; color:#777; margin:10px 0;">${x.obs}</div>
+                        <div class="media-box" onclick="abrir('${x.midia}','${x.mType}')">${mHtml}</div>
+                        ${adm ? `<button class="btn-del" onclick="apagar(${x.id})">EXCLUIR PROVA</button>` : ''}
+                    </div>`;
+                }
+                cursor.continue();
             }
-
-            listP.innerHTML += `
-            <div class="prova-item">
-                <div style="color:var(--gold); font-weight:bold; font-size:18px;">${x.t}</div>
-                <div style="font-size:13px; color:#777; margin:8px 0;">${x.o}</div>
-                <div class="media-box" onclick="abrir('${x.m}','${x.tipo}')">${midiaHtml}</div>
-                ${adm ? `<button class="btn-del" onclick="apagar('p',${x.uid})">EXCLUIR PROVA</button>` : ''}
-            </div>`;
-        });
+        };
     }
-    render();
 </script>
 </body>
 </html>
