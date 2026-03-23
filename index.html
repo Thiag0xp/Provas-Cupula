@@ -6,12 +6,11 @@
     <title>Cúpula - Arquivo Interno</title>
     <style>
         :root { --gold: #d4af37; --bg: #050505; --card: #111; --border: #222; }
-        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
         
         header { background: #000; padding: 20px 5%; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        
         nav { display: flex; justify-content: center; background: #080808; border-bottom: 1px solid var(--border); }
-        nav button { background: none; border: none; color: #555; padding: 15px 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
+        nav button { background: none; border: none; color: #555; padding: 15px 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         nav button.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
 
         .container { padding: 30px 5%; max-width: 900px; margin: auto; }
@@ -20,79 +19,88 @@
 
         /* Grid Membros */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
         .card img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
 
-        /* Provas */
-        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 20px; border-radius: 10px; }
-        .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; cursor: zoom-in; }
+        /* Estilo das Provas */
+        .prova-item { background: var(--card); border: 1px solid var(--border); margin-bottom: 25px; padding: 20px; border-radius: 10px; position: relative; }
+        .media-box { width: 100%; margin-top: 10px; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
         video, iframe, .img-render { width: 100%; display: block; border: none; }
         video, iframe { aspect-ratio: 16/9; }
-        .img-render { height: auto; max-height: 450px; object-fit: contain; }
+        .img-render { height: auto; max-height: 500px; object-fit: contain; }
 
-        /* Overlay de Visualização (Modal) */
-        #viewOverlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.95); display:none; justify-content:center; 
-            align-items:center; z-index:1000; cursor: zoom-out;
-        }
-        #viewContent { max-width: 90%; max-height: 85%; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); border-radius: 8px; }
+        /* Overlay para abrir a prova grande */
+        #zoomOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:1000; cursor: pointer; }
+        #zoomContent { max-width: 90%; max-height: 90%; border: 2px solid var(--gold); border-radius: 5px; }
 
         /* Admin */
         #adminPanel { background: #0a0a0a; border: 1px solid var(--gold); padding: 20px; margin-top: 20px; display: none; border-radius: 8px; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
-        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 12px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
-        .btn-del { color: #ff4444; background: none; border: 1px solid #442222; cursor: pointer; font-size: 10px; padding: 6px 12px; margin-top: 10px; border-radius: 4px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn-save { background: var(--gold); color: black; font-weight: bold; border: none; padding: 15px; cursor: pointer; width: 100%; text-transform: uppercase; border-radius: 5px; }
+        .btn-del { color: #ff4444; background: none; border: 1px solid #442222; cursor: pointer; font-size: 10px; padding: 5px 10px; margin-top: 10px; border-radius: 4px; }
         
-        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); display:none; justify-content:center; align-items:center; z-index:999; }
+        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:999; }
     </style>
 </head>
 <body>
 
 <header>
     <div style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CÚPULA ADM</div>
-    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; cursor: pointer;">SISTEMA</button>
+    <button onclick="document.getElementById('loginOverlay').style.display='flex'" style="background:none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; cursor: pointer;">ACESSO</button>
 </header>
 
 <nav>
     <button onclick="tab('membros')" id="b-membros" class="active">Membros</button>
-    <button onclick="tab('provas')" id="b-provas">Provas</button>
+    <button onclick="tab('provas')" id="b-provas">Arquivos de Prova</button>
 </nav>
 
 <div class="container">
     <div id="t-membros" class="tab-content active"><div id="listM" class="grid"></div></div>
+    
     <div id="t-provas" class="tab-content"><div id="listP"></div></div>
 
     <div id="adminPanel">
-        <h4 style="color: var(--gold); margin:0 0 10px 0;">Cadastrar Registro</h4>
-        <select id="tipo" onchange="toggleF()">
+        <h3 style="color: var(--gold); margin-top:0;">Novo Registro</h3>
+        <select id="tipo" onchange="toggleForm()">
             <option value="m">Membro</option>
-            <option value="p">Prova</option>
+            <option value="p">Prova (Foto/Vídeo)</option>
         </select>
-        <div id="fM"><input type="text" id="n" placeholder="Nome"><input type="text" id="id" placeholder="ID"></div>
-        <div id="fP" style="display:none;"><input type="text" id="tit" placeholder="Título"><input type="text" id="link" placeholder="Link YouTube (opcional)"></div>
-        <input type="file" id="fileUp" accept="image/*,video/*" style="font-size: 11px; color: gray;">
-        <textarea id="obs" placeholder="Detalhes..."></textarea>
-        <button class="btn-save" onclick="save()">Sincronizar</button>
+        
+        <div id="fMembro">
+            <input type="text" id="nome" placeholder="Nome">
+            <input type="text" id="idU" placeholder="ID Único">
+        </div>
+
+        <div id="fProva" style="display:none;">
+            <input type="text" id="titulo" placeholder="Título da Prova">
+            <input type="text" id="linkYt" placeholder="Link YouTube (Opcional)">
+        </div>
+
+        <div style="margin:10px 0;">
+            <label style="font-size: 11px; color: gray;">Upload de Arquivo:</label>
+            <input type="file" id="arquivo" accept="image/*,video/*">
+        </div>
+
+        <textarea id="obs" placeholder="Observações"></textarea>
+        <button class="btn-save" onclick="salvarDados()">Enviar para Arquivos</button>
     </div>
 </div>
 
-<div id="viewOverlay" onclick="this.style.display='none'">
-    <div id="viewContainer" onclick="event.stopPropagation()">
+<div id="zoomOverlay" onclick="this.style.display='none'">
+    <div id="zoomBox" onclick="event.stopPropagation()">
         </div>
 </div>
 
 <div id="loginOverlay">
     <div style="background:#111; padding:30px; border:1px solid var(--gold); text-align:center; border-radius:8px;">
-        <input type="password" id="pw" placeholder="Senha">
-        <button class="btn-save" onclick="login()">Entrar</button>
+        <input type="password" id="pass" placeholder="Senha">
+        <button class="btn-save" onclick="logar()">Entrar</button>
     </div>
 </div>
 
 <script>
-    const PASS = "123";
-    let adm = false;
+    const SENHA_MASTER = "123";
+    let logado = false;
 
     function tab(t) {
         document.querySelectorAll('.tab-content, nav button').forEach(e => e.classList.remove('active'));
@@ -100,105 +108,114 @@
         document.getElementById('b-'+t).classList.add('active');
     }
 
-    function toggleF() {
+    function toggleForm() {
         const isP = document.getElementById('tipo').value === 'p';
-        document.getElementById('fM').style.display = isP ? 'none' : 'block';
-        document.getElementById('fP').style.display = isP ? 'block' : 'none';
+        document.getElementById('fMembro').style.display = isP ? 'none' : 'block';
+        document.getElementById('fProva').style.display = isP ? 'block' : 'none';
     }
 
-    function login() {
-        if(document.getElementById('pw').value === PASS) {
-            adm = true;
+    function logar() {
+        if(document.getElementById('pass').value === SENHA_MASTER) {
+            logado = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             render();
-        } else alert("Senha incorreta");
+        } else alert("Acesso Negado");
     }
 
-    // Abre imagem/vídeo em tela cheia
-    function abrirMedia(src, tipo) {
-        const overlay = document.getElementById('viewOverlay');
-        const container = document.getElementById('viewContainer');
-        container.innerHTML = '';
+    // Função para abrir a prova grande
+    function abrirProva(midia, tipo) {
+        const overlay = document.getElementById('zoomOverlay');
+        const box = document.getElementById('zoomBox');
+        box.innerHTML = '';
 
         if(tipo === 'foto') {
-            container.innerHTML = `<img src="${src}" id="viewContent">`;
-        } else if(tipo === 'video') {
-            container.innerHTML = `<video src="${src}" id="viewContent" controls autoplay></video>`;
-        } else if(tipo === 'youtube') {
-            const id = src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-            container.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" id="viewContent" style="width:80vw; height:45vw;" allowfullscreen></iframe>`;
+            box.innerHTML = `<img src="${midia}" id="zoomContent">`;
+        } else if (tipo === 'video') {
+            box.innerHTML = `<video src="${midia}" id="zoomContent" controls autoplay></video>`;
+        } else if (tipo === 'youtube') {
+            const id = midia.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
+            box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" id="zoomContent" style="width:80vw; height:45vw;" allowfullscreen></iframe>`;
         }
         overlay.style.display = 'flex';
     }
 
-    const toB64 = f => new Promise((res) => {
+    const converterBase64 = f => new Promise((res) => {
         const r = new FileReader();
         r.onload = () => res(r.result);
         r.readAsDataURL(f);
     });
 
-    async function save() {
-        let db = JSON.parse(localStorage.getItem('cupula_v4') || '{"m":[],"p":[]}');
+    async function salvarDados() {
+        let db = JSON.parse(localStorage.getItem('cupula_arquivos') || '{"membros":[],"provas":[]}');
         const tipo = document.getElementById('tipo').value;
-        const file = document.getElementById('fileUp').files[0];
-        let midia = "", mType = "";
+        const file = document.getElementById('arquivo').files[0];
+        let midiaBase64 = "";
+        let tipoArquivo = "";
 
         if(file) {
-            midia = await toB64(file);
-            mType = file.type.startsWith('image') ? 'foto' : 'video';
+            midiaBase64 = await converterBase64(file);
+            tipoArquivo = file.type.startsWith('image') ? 'foto' : 'video';
         }
 
         if(tipo === 'm') {
-            db.m.push({ uid: Date.now(), n: document.getElementById('n').value, id: document.getElementById('id').value, foto: midia });
+            db.membros.push({ uid: Date.now(), nome: document.getElementById('nome').value, id: document.getElementById('idU').value, foto: midiaBase64 });
         } else {
-            const url = document.getElementById('link').value;
-            db.p.push({ uid: Date.now(), t: document.getElementById('tit').value, src: url || midia, tipo: url ? 'youtube' : mType, obs: document.getElementById('obs').value });
+            const yt = document.getElementById('linkYt').value;
+            db.provas.push({ 
+                uid: Date.now(), 
+                titulo: document.getElementById('titulo').value, 
+                src: yt || midiaBase64, 
+                tipo: yt ? 'youtube' : tipoArquivo,
+                obs: document.getElementById('obs').value 
+            });
         }
 
-        localStorage.setItem('cupula_v4', JSON.stringify(db));
+        localStorage.setItem('cupula_arquivos', JSON.stringify(db));
         render();
-        alert("Sincronizado!");
+        alert("Enviado com sucesso para a aba de arquivos!");
+        document.querySelectorAll('input:not([type=password]), textarea').forEach(i => i.value = "");
     }
 
-    function del(cat, id) {
-        if(!confirm("Apagar?")) return;
-        let db = JSON.parse(localStorage.getItem('cupula_v4'));
+    function excluir(cat, id) {
+        if(!confirm("Deseja remover este arquivo?")) return;
+        let db = JSON.parse(localStorage.getItem('cupula_arquivos'));
         db[cat] = db[cat].filter(i => i.uid !== id);
-        localStorage.setItem('cupula_v4', JSON.stringify(db));
+        localStorage.setItem('cupula_arquivos', JSON.stringify(db));
         render();
     }
 
     function render() {
-        const db = JSON.parse(localStorage.getItem('cupula_v4') || '{"m":[],"p":[]}');
+        const db = JSON.parse(localStorage.getItem('cupula_arquivos') || '{"membros":[],"provas":[]}');
         const listM = document.getElementById('listM');
         const listP = document.getElementById('listP');
         
         listM.innerHTML = '';
-        db.m.forEach(m => {
-            listM.innerHTML += `<div class="card" onclick="abrirMedia('${m.foto}','foto')">
-                <img src="${m.foto || 'https://via.placeholder.com/80'}">
-                <h5 style="margin:10px 0 0 0;">${m.n}</h5>
-                ${adm ? `<button class="btn-del" onclick="event.stopPropagation(); del('m',${m.uid})">Excluir</button>` : ''}
+        db.membros.forEach(m => {
+            listM.innerHTML += `<div class="card" onclick="abrirProva('${m.foto}','foto')">
+                <img src="${m.foto || 'https://via.placeholder.com/70'}">
+                <h5>${m.nome}</h5>
+                ${logado ? `<button class="btn-del" onclick="event.stopPropagation(); excluir('membros',${m.uid})">Remover</button>` : ''}
             </div>`;
         });
 
         listP.innerHTML = '';
-        db.p.forEach(p => {
-            let media = "";
+        db.provas.forEach(p => {
+            let visual = "";
             if(p.tipo === 'youtube') {
                 const id = p.src.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/)[1];
-                media = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
+                visual = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
             } else if(p.tipo === 'foto') {
-                media = `<img src="${p.src}" class="img-render">`;
+                visual = `<img src="${p.src}" class="img-render">`;
             } else {
-                media = `<video><source src="${p.src}"></video>`;
+                visual = `<video><source src="${p.src}"></video>`;
             }
 
             listP.innerHTML += `<div class="prova-item">
-                <h3 style="color:var(--gold);margin:0;">${p.t}</h3>
-                <div class="media-box" onclick="abrirMedia('${p.src}','${p.tipo}')">${media}</div>
-                ${adm ? `<button class="btn-del" onclick="del('p',${p.uid})">Excluir Prova</button>` : ''}
+                <h3 style="color:var(--gold);margin:0;">${p.titulo}</h3>
+                <p style="font-size:13px; color:gray; margin:5px 0;">${p.obs}</p>
+                <div class="media-box" onclick="abrirProva('${p.src}','${p.tipo}')">${visual}</div>
+                ${logado ? `<button class="btn-del" onclick="excluir('provas',${p.uid})">Excluir Prova</button>` : ''}
             </div>`;
         });
     }
